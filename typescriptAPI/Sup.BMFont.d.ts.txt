@@ -1,0 +1,4 @@
+declare namespace Sup {
+    class BMFont extends Asset {
+    }
+}

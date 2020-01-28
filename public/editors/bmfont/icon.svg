@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="icon.svg"
+   inkscape:export-filename="C:\Users\streamshack\Documents\tree-view\build\group-open.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.627417"
+     inkscape:cx="6.2701203"
+     inkscape:cy="11.238931"
+     inkscape:document-units="px"
+     inkscape:current-layer="g3801"
+     showgrid="true"
+     inkscape:window-width="1858"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-others="false"
+     inkscape:snap-grids="true"
+     inkscape:snap-nodes="false"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2993"
+       empspacing="4"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1028.3622)">
+    <g
+       id="g3801"
+       transform="translate(-4,4)">
+      <image
+         y="1026.019"
+         x="5.6568546"
+         id="image6110"
+         xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAV5JREFU
+WIXtVkGOxCAMM/Ox9mdNfwYvyx5WqVxIgGpXwxzGElIxNIQkYBJ+oViDlBYuDgB4rVz8sxxQ1W4T
+EURzc87hAiLSzK+h3AzMiYjLq6rmnBuem41Hc6ZSwLuvYbv35ohINzqGYQQi3voWifof4/4UAd7F
+eZ7unFIKtm27RWF292EEaoiIGxVQjXAU+LsXgdAB5myB2gmeVxfjrAPNTWjHJKWEEa+qV19EcBzH
+LU2WksgmAPybA9YvpQAA9n0f2gQmb8LeMWRYMc4Wn6FbfF4RegDVysgmejXwbnyOGH0dUEeCGTnn
+UH6N9yQ7sm1jTQRSSldjYzzGHIPPvmfT6w9TYLvlXXscgEaQZvFYhmue0ZPgwFb/cnniAIvWrAPX
+RcR5voVngve+DVEtGYY1YOJSPzZ4jBE9WnoYajbnFo721/9GD1GPm7qI+OhFKWE8UcOvGC13wBK5
+Kg3pB9/lJzf7EmTDAAAAAElFTkSuQmCC
+"
+         style="image-rendering:optimizeSpeed"
+         preserveAspectRatio="none"
+         height="20.686291"
+         width="20.686291" />
+    </g>
+  </g>
+</svg>

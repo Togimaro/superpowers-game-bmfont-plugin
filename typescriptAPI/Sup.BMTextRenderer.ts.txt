@@ -1,0 +1,30 @@
+namespace Sup {
+    export class BMTextRenderer extends Sup.ActorComponent {
+        constructor(actor: Actor, text: string | number, pathOrAsset: string | BMFont) {
+            super(actor);
+            this.__inner = new SupEngine.componentClasses.BMTextRenderer(this.actor.__inner);
+
+            if (text != null) this.__inner.setText(`${text}`);
+            if (pathOrAsset != null) this.setFont(pathOrAsset);
+
+            this.__inner.__outer = this;
+            this.actor.bmTextRenderer = this;
+        }
+        destroy() {
+            this.actor.bmTextRenderer = null;
+            super.destroy();
+        }
+
+        getFont() { return this.__inner.font.__outer; }
+        setFont(pathOrAsset: string | BMFont) {
+            let fontAsset = (typeof pathOrAsset === "string") ? get(pathOrAsset, BMFont) : <BMFont>pathOrAsset;
+            this.__inner.setFont(fontAsset.__inner);
+            return this;
+        }
+        getText() { return this.__inner.text; }
+        setText(text: string | number) {
+            this.__inner.setText(`${text}`);
+            return this;
+        }
+    }
+}

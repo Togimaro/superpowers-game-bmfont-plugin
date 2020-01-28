@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    link(rel="stylesheet",href="/styles/reset.css")
+    link(rel="stylesheet",href="/styles/resizeHandle.css")
+    link(rel="stylesheet",href="/styles/dialogs.css")
+    link(rel="stylesheet",href="/styles/properties.css")
+    link(rel="stylesheet",href="index.css")
+
+  body
+    canvas(tabindex="0")
+
+    .sidebar
+      table.properties
+        tr
+          th(colspan="2")= t("bmfontEditor:sidebar.settings.bmfont.title")
+        tr
+          th= t("bmfontEditor:sidebar.settings.bmfont.fontFile.title")
+          td
+            button.uploadFnt= t("common:actions.upload")
+            form(style="display: none")
+              input.fnt-select(type="file",accept=".fnt")
+        tr
+          th= t("bmfontEditor:sidebar.settings.bmfont.bitmapFile.title")
+          td
+            button.uploadBmp= t("common:actions.upload")
+            form(style="display: none")
+              input.bmp-select(type="file",accept=".png")
+
+    script(src="/SupCore.js")
+    script(src="../../../../../SupEngine.js")
+    script(src="/SupClient.js")
+    script(src="../../bundles/data.js")
+    script(src="index.js")

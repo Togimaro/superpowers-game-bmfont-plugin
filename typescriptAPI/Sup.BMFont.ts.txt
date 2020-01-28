@@ -1,0 +1,4 @@
+namespace Sup {
+    export class BMFont extends Sup.Asset {
+    }
+}

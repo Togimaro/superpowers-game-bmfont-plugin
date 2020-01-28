@@ -1,0 +1,10 @@
+{
+  "name": "superpowers-game-togi-bmfont-plugin",
+  "description": "Plugin for Superpowers game",
+  "scripts": {
+    "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
+  },
+  "dependencies": {
+    "parse-bmfont-binary": "^1.0.6"
+  }
+}

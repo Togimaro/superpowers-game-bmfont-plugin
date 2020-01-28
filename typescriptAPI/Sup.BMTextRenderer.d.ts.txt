@@ -1,0 +1,10 @@
+declare namespace Sup {
+  class BMTextRenderer extends ActorComponent {
+    constructor(actor: Actor, text?: string|number, pathOrAsset?: string|BMFont);
+
+    getFont(): BMFont;
+    setFont(pathOrAsset: string|BMFont): BMTextRenderer;
+    getText(): string;
+    setText(text: string|number): BMTextRenderer;
+  }
+}
