@@ -100,7 +100,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
         this.pub = {
             formatVersion: BMFontAsset.currentFormatVersion,
 
-            bitmap: new Buffer(0),
+            bitmap: Buffer.alloc(0),
 
             common: {
                 lineHeight: 0,
