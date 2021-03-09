@@ -1,6 +1,11 @@
 {
   "name": "superpowers-game-togi-bmfont-plugin",
-  "description": "Plugin for Superpowers game",
+  "description": "BMFont implementation for Superpowers, the extensible HTML5 2D+3D game engine",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Togimaro/superpowers-game-bmfont-plugin"
+  },
+  "license": "MIT",
   "scripts": {
     "build": "gulp --gulpfile=../../../../../scripts/pluginGulpfile.js --cwd=."
   },

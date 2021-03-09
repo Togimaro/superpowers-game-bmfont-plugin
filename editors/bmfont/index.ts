@@ -55,7 +55,7 @@ function onConnected() {
 
     const textActor = new SupEngine.Actor(ui.gameInstance, "Text");
     const textRenderer = new BMTextRenderer(textActor);
-    const config = { fontAssetId: SupClient.query.asset, text: noCharsetText };
+    const config = { fontAssetId: SupClient.query.asset, text: noCharsetText, alignment: "center", verticalAlignment: "center", characterSpacing: 0, lineSpacing: 0};
     const bmfSubscriber = {
         onAssetReceived,
         onAssetEdited,

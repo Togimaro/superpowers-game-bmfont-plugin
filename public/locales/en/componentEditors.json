@@ -2,6 +2,21 @@
   "BMTextRenderer": {
     "label": "BMFont Text Renderer",
     "font": "Font",
-    "text": "Text"
+    "text": "Text",
+    "align": {
+      "title": "Alignment",
+      "left": "Left",
+      "center": "Center",
+      "right": "Right"
+    },
+    "verticalAlign": {
+      "title": "Vertical Align",
+      "top": "Top",
+      "center": "Center",
+      "bottom": "Bottom"
+    },
+    "characterSpacing": "Character spacing",
+    "lineSpacing": "Line spacing",
+    "color": "Color"
   }
 }

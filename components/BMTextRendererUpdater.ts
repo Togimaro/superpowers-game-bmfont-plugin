@@ -5,6 +5,13 @@ import { BMTextRendererConfigPub } from "../componentConfigs/BMTextRendererConfi
 export default class BMTextRendererUpdater {
     fontAssetId: string;
     text: string;
+    options: {
+      alignment: string;
+      verticalAlignment: string;
+      characterSpacing: number;
+      lineSpacing: number;
+      color?: string;
+    };
 
     private fontSubscriber: SupClient.AssetSubscriber;
     fontAsset: BMFontAsset;
@@ -13,6 +20,13 @@ export default class BMTextRendererUpdater {
         private externalSubscriber?: SupClient.AssetSubscriber) {
         this.fontAssetId = config.fontAssetId;
         this.text = config.text;
+        this.options = {
+          alignment: config.alignment,
+          verticalAlignment: config.verticalAlignment,
+          characterSpacing: config.characterSpacing,
+          lineSpacing: config.lineSpacing,
+          color: config.color,
+        };
 
         if (this.externalSubscriber == null) this.externalSubscriber = {};
 
@@ -44,13 +58,24 @@ export default class BMTextRendererUpdater {
                 this.text = value;
                 this.textRenderer.setText(this.text);
             } break;
+
+            case "alignment":
+            case "verticalAlignment":
+            case "characterSpacing":
+            case "lineSpacing":
+            case "color": {
+                (this.options as any)[path] = (value !== "") ? value : null;
+                this.textRenderer.setOptions(this.options);
+            } break;
         }
+        this.textRenderer.beforeRender(); // force update mesh in editor
     }
 
     private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
         this.fontAsset = asset;
 
         this.textRenderer.setText(this.text);
+        this.textRenderer.setOptions(this.options);
 
         this.setupFont();
 
@@ -67,8 +92,14 @@ export default class BMTextRendererUpdater {
     private setupFont() {
         if (this.fontAsset.pub.texture != null) {
             const image = this.fontAsset.pub.texture.image;
-            if (image.complete) this.textRenderer.setFont(this.fontAsset.pub);
-            else image.addEventListener("load", () => { this.textRenderer.setFont(this.fontAsset.pub); });
+            if (image.complete) {
+                this.textRenderer.setFont(this.fontAsset.pub);
+                this.textRenderer.setupComponent();
+            }
+            else image.addEventListener("load", () => {
+                this.textRenderer.setFont(this.fontAsset.pub);
+                this.textRenderer.setupComponent();
+            });
         }
     }
 

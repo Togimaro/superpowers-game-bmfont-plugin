@@ -21,9 +21,25 @@ namespace Sup {
             this.__inner.setFont(fontAsset.__inner);
             return this;
         }
+
         getText() { return this.__inner.text; }
         setText(text: string | number) {
             this.__inner.setText(`${text}`);
+            return this;
+        }
+
+        getColor() {
+            var color = (this.__inner.options.color != null) ? this.__inner.options.color : this.__inner.font.color;
+            return new Sup.Color(1, 1, 1).setHex(parseInt(color, 16));
+        }
+        setColor(r, g, b) {
+            let color;
+            if (g == null && b == null) color = r;
+            else color = new Sup.Color(r, g, b);
+
+            var options = this.__inner.options;
+            options.color = color.getHexString();
+            this.__inner.setOptions(options);
             return this;
         }
     }

@@ -3,6 +3,11 @@ export interface BMTextRendererConfigPub {
 
     fontAssetId: string;
     text: string;
+    alignment: string;
+    verticalAlignment: string;
+    characterSpacing: number;
+    lineSpacing: number;
+    color?: string;
 }
 
 export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentConfig {
@@ -12,7 +17,12 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
         formatVersion: { type: "integer" },
 
         fontAssetId: { type: "string?", min: 0, mutable: true },
-        text: { type: "string", min: 0, mutable: true }
+        text: { type: "string", minLength: 0, mutable: true },
+        alignment: { type: "enum", items: [ "left", "center", "right" ], mutable: true },
+        verticalAlignment: { type: "enum", items: [ "top", "center", "bottom" ], mutable: true },
+        characterSpacing: { type: "integer", mutable: true },
+        lineSpacing: { type: "integer", mutable: true },
+        color: { type: "string?", length: 6, mutable: true }
     };
 
     static create() {
@@ -20,7 +30,12 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
             formatVersion: BMTextRendererConfig.currentFormatVersion,
 
             fontAssetId: null,
-            text: "Text"
+            text: "Text",
+            alignment: "center",
+            verticalAlignment: "center",
+            characterSpacing: null,
+            lineSpacing: null,
+            color: null,
         };
         return emptyConfig;
     }
