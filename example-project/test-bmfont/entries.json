@@ -1,0 +1,56 @@
+{
+  "nextEntryId": 12,
+  "nodes": [
+    {
+      "id": "0",
+      "name": "BMFonts",
+      "type": null,
+      "children": [
+        {
+          "id": "1",
+          "name": "BMFont",
+          "type": "bmfont"
+        },
+        {
+          "id": "4",
+          "name": "Font",
+          "type": "font"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Scenes",
+      "type": null,
+      "children": [
+        {
+          "id": "3",
+          "name": "Scene",
+          "type": "scene"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "name": "InvertShader",
+      "type": "shader"
+    },
+    {
+      "id": "8",
+      "name": "Sprite",
+      "type": "sprite"
+    },
+    {
+      "id": "10",
+      "name": "Scripts",
+      "type": null,
+      "children": [
+        {
+          "id": "11",
+          "name": "TextUpdater",
+          "type": "script"
+        }
+      ]
+    }
+  ]
+}

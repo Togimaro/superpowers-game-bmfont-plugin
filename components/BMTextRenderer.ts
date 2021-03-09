@@ -57,7 +57,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.updateMaterial();
   }
 
-  renderUpdate() { // to investigate: remove the current 1 frame lag
+  renderUpdate() { // to investigate: remove the current 1 frame lag + weird bug logicalcharacter
     if (this.needUpdateMesh) this.updateMesh();
     if (this.needUpdateMaterial) this.updateMaterial();
     this.needUpdateMesh = false;
@@ -101,7 +101,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.positions.needsUpdate = true;
     this.uvs.needsUpdate = true;
     this.indices.needsUpdate = true;
-    (this.threeMesh.geometry as THREE.BufferGeometry).setDrawRange(0, (this.logicalChar - 1) * 6);
+    (this.threeMesh.geometry as THREE.BufferGeometry).setDrawRange(0, this.logicalChar * 6);
 
     const scale = 1 / this.font.pixelsPerUnit;
     this.threeMesh.scale.set(scale, scale, scale);

@@ -1,0 +1,10 @@
+{
+  "behaviors": {
+    "TextUpdaterBehavior": {
+      "scriptId": "11",
+      "line": 0,
+      "parentBehavior": null,
+      "properties": []
+    }
+  }
+}
