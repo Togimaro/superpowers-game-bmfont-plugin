@@ -9,5 +9,7 @@ declare namespace Sup {
     getColor(): Color;
     setColor(color: Color): BMTextRenderer;
     setColor(r: number, g: number, b: number): BMTextRenderer;
+
+    forceUpdateMesh(): BMTextRenderer;
   }
 }

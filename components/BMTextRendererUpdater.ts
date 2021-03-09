@@ -68,7 +68,7 @@ export default class BMTextRendererUpdater {
                 this.textRenderer.setOptions(this.options);
             } break;
         }
-        this.textRenderer.beforeRender(); // force update mesh in editor
+        this.textRenderer.renderUpdate(); // force update mesh in editor
     }
 
     private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {

@@ -42,5 +42,10 @@ namespace Sup {
             this.__inner.setOptions(options);
             return this;
         }
+
+        forceUpdateMesh() {
+            this.__inner.renderUpdate();
+            return this;
+        }
     }
 }

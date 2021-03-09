@@ -13,5 +13,5 @@ export function setupComponent(player: SupRuntime.Player, component: any, config
         component.setFont(font);
     }
 
-    component.setupComponent();
+    component.renderUpdate();
 }
