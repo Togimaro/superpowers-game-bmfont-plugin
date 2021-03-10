@@ -68,7 +68,7 @@ export default class BMTextRendererUpdater {
                 this.textRenderer.setOptions(this.options);
             } break;
         }
-        this.textRenderer.renderUpdate(); // force update mesh in editor
+        this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
     }
 
     private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
@@ -92,14 +92,12 @@ export default class BMTextRendererUpdater {
     private setupFont() {
         if (this.fontAsset.pub.texture != null) {
             const image = this.fontAsset.pub.texture.image;
-            if (image.complete) {
+            const onLoad = () => {
                 this.textRenderer.setFont(this.fontAsset.pub);
-                this.textRenderer.setupComponent();
-            }
-            else image.addEventListener("load", () => {
-                this.textRenderer.setFont(this.fontAsset.pub);
-                this.textRenderer.setupComponent();
-            });
+                this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
+            };
+            if (image.complete) onLoad();
+            else image.addEventListener("load", onLoad);
         }
     }
 

@@ -20,7 +20,6 @@ function start() {
     socket.on("disconnect", SupClient.onDisconnected);
 
     ui.gameInstance = new SupEngine.GameInstance(document.querySelector("canvas") as HTMLCanvasElement);
-    ui.gameInstance.threeRenderer.setClearColor(0xbbbbbb);
     ui.gameInstance.update();
     ui.gameInstance.draw();
 
@@ -29,6 +28,7 @@ function start() {
     const cameraComponent = new SupEngine.componentClasses["Camera"](cameraActor);
     cameraComponent.setOrthographicMode(true);
     cameraComponent.setOrthographicScale(5);
+    cameraComponent.setClearColor(0xbbbbbb);
     new SupEngine.editorComponentClasses["Camera2DControls"](cameraActor, cameraComponent, {
         zoomSpeed: 1.5,
         zoomMin: 1,

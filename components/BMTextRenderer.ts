@@ -52,9 +52,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       this.needUpdateMaterial = true;
   }
 
-  setupComponent() {
-    this.updateMesh();
-    this.updateMaterial();
+  lateUpdate() {
+    this.renderUpdate();
   }
 
   renderUpdate() { // to investigate: remove the current 1 frame lag + weird bug logicalcharacter
@@ -212,7 +211,6 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
 
     this.threeMesh = new THREE.Mesh(geometry, material);
     this.actor.threeObject.add(this.threeMesh);
-    (this.threeMesh as any).onBeforeRender = this.renderUpdate.bind(this);
   }
 
   disposeMesh() {
