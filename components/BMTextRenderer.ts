@@ -114,7 +114,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     (this.threeMesh.material as THREE.MeshBasicMaterial).map = this.font.texture;
     (this.threeMesh.material as THREE.MeshBasicMaterial).color.setHex(parseInt(color, 16));
 
-    this.threeMesh.material.needsUpdate = true;
+    (this.threeMesh.material as THREE.Material).needsUpdate = true;
   }
 
   pushLine(startPos: number, currentLine: number): number {
@@ -219,7 +219,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     if (this.threeMesh == null) return;
     this.actor.threeObject.remove(this.threeMesh);
     this.threeMesh.geometry.dispose();
-    this.threeMesh.material.dispose();
+    (this.threeMesh.material as THREE.Material).dispose();
     this.threeMesh = null;
   }
 
