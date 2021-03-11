@@ -56,7 +56,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.renderUpdate();
   }
 
-  renderUpdate() { // to investigate: remove the current 1 frame lag + weird bug logicalcharacter
+  renderUpdate() {
     if (this.needUpdateMesh) this.updateMesh();
     if (this.needUpdateMaterial) this.updateMaterial();
     this.needUpdateMesh = false;
