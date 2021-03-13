@@ -13,19 +13,39 @@ html
     .sidebar
       table.properties
         tr
-          th(colspan="2")= t("bmfontEditor:sidebar.settings.bmfont.title")
+          th(colspan="2")= t("bmfontEditor:title")
         tr
-          th= t("bmfontEditor:sidebar.settings.bmfont.fontFile.title")
+          th= t("bmfontEditor:fontFile.title")
           td
             button.uploadFnt= t("common:actions.upload")
             form(style="display: none")
               input.fnt-select(type="file",accept=".fnt")
         tr
-          th= t("bmfontEditor:sidebar.settings.bmfont.bitmapFile.title")
+          th= t("bmfontEditor:bitmapFile.title")
           td
             button.uploadBmp= t("common:actions.upload")
             form(style="display: none")
               input.bmp-select(type="file",accept=".png")
+        tr
+          th(colspan="2")= t("bmfontEditor:rendering")
+          tr
+            th= t("bmfontEditor:pixelsPerUnit")
+            td
+              input(type="number").property-pixelsPerUnit
+          tr
+            th= t("bmfontEditor:characterSpacing")
+            td
+              input(type="number").property-characterSpacing
+          tr
+            th= t("bmfontEditor:lineSpacing")
+            td
+              input(type="number").property-lineSpacing
+          tr
+            th= t("bmfontEditor:color")
+            td
+              .inputs
+                input.color.property-color
+                input(type="color").color-picker
 
     script(src="/SupCore.js")
     script(src="../../../../../SupEngine.js")

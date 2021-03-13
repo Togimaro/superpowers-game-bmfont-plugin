@@ -1,23 +1,22 @@
 {
-    "sidebar": {
-        "settings": {
-            "bmfont": {
-                "title": "BMFont",
-                "fontFile": {
-                    "title": "Font data",
-                    "download": {
-                        "defaultName": "font.fnt",
-                        "prompt": "Enter the name of the font"
-                    }
-                },
-                "bitmapFile": {
-                    "title": "Bitmap",
-                    "download": {
-                        "defaultName": "font.png",
-                        "prompt": "Enter the name of the font"
-                    }
-                }
-            }
-        }
-    }
+  "title": "BMFont",
+  "fontFile": {
+      "title": "Font data (binary)",
+      "download": {
+          "defaultName": "font.fnt",
+          "prompt": "Enter the name of the font"
+      }
+  },
+  "bitmapFile": {
+      "title": "Bitmap",
+      "download": {
+          "defaultName": "font.png",
+          "prompt": "Enter the name of the font"
+      }
+  },
+  "rendering": "Rendering",
+  "pixelsPerUnit": "Pixels / Unit",
+  "characterSpacing": "Character spacing",
+  "lineSpacing": "Line spacing",
+  "color": "Color"
 }

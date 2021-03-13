@@ -36,8 +36,9 @@ export interface BMFontPub {
     }[];
 
     pixelsPerUnit: number;
+    characterSpacing: number;
+    lineSpacing: number;
     color: string;
-    opacity: number;
 
     name?: string;
     texture?: THREE.Texture;
@@ -86,6 +87,10 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
             }
           }
         },
+        pixelsPerUnit: { type: "number", minExcluded: 0, mutable: true },
+        color: { type: "string", length: 6, mutable: true },
+        characterSpacing: { type: "number", mutable: true },
+        lineSpacing: { type: "number", mutable: true },
     };
 
     pub: BMFontPub;
@@ -112,8 +117,9 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
             kernings: [],
 
             pixelsPerUnit: 20,
-            color: "ffffff",
-            opacity: null,
+            characterSpacing: 0,
+            lineSpacing: 0,
+            color: "ffffff"
         };
         super.init(options, callback);
     }

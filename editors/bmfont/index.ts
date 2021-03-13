@@ -2,13 +2,13 @@ import BMFontAsset from "../../data/BMFontAsset";
 import BMTextRenderer from "../../components/BMTextRenderer";
 import BMTextRendererUpdater from "../../components/BMTextRendererUpdater";
 
-const data: {
-    projectClient: SupClient.ProjectClient;
-    asset: BMFontAsset;
-    textUpdater?: BMTextRendererUpdater;
-} = {} as any;
+const data: { projectClient: SupClient.ProjectClient; asset: BMFontAsset; textUpdater?: BMTextRendererUpdater; } = {} as any;
 const ui: {
     gameInstance: SupEngine.GameInstance,
+
+    allSettings: string[],
+    settings: { [name: string]: any; }
+    colorPicker: HTMLInputElement,
 } = {} as any;
 const noCharsetText = "The quick brown fox\njumps over the lazy dog\n\n0123456789 +-*/=";
 
@@ -44,6 +44,28 @@ function start() {
     fntSelect.addEventListener("change", onFntChange);
     document.querySelector("button.uploadFnt").addEventListener("click", () => { fntSelect.click(); });
 
+    ui.allSettings = ["pixelsPerUnit", "color", "characterSpacing", "lineSpacing"];
+    ui.settings = {};
+    ui.allSettings.forEach((setting: string) => {
+        const settingObj: any = ui.settings[setting] = document.querySelector(`.property-${setting}`);
+        settingObj.dataset["name"] = setting;
+
+        if (setting === "color") {
+            settingObj.addEventListener("change", (event: any) => {
+                data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], event.target.value);
+            });
+        } else {
+            settingObj.addEventListener("change", (event: any) => {
+                data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], parseInt(event.target.value, 10));
+            });
+        }
+    });
+
+    ui.colorPicker = document.querySelector("input.color-picker") as HTMLInputElement;
+    ui.colorPicker.addEventListener("change", (event: any) => {
+        data.projectClient.editAsset(SupClient.query.asset, "setProperty", "color", event.target.value.slice(1));
+    });
+
     requestAnimationFrame(tick);
 }
 
@@ -55,7 +77,7 @@ function onConnected() {
 
     const textActor = new SupEngine.Actor(ui.gameInstance, "Text");
     const textRenderer = new BMTextRenderer(textActor);
-    const config = { fontAssetId: SupClient.query.asset, text: noCharsetText, alignment: "center", verticalAlignment: "center", characterSpacing: 0, lineSpacing: 0};
+    const config = { fontAssetId: SupClient.query.asset, text: noCharsetText, alignment: "center", verticalAlignment: "center", characterSpacing: 0, lineSpacing: 0 };
     const bmfSubscriber = {
         onAssetReceived,
         onAssetEdited,
@@ -65,6 +87,10 @@ function onConnected() {
 }
 
 function onAssetReceived(err: string, asset: BMFontAsset) {
+    ui.allSettings.forEach((setting: string) => {
+        ui.settings[setting].value = (data.textUpdater.fontAsset.pub as any)[setting];
+    });
+    ui.colorPicker.value = `#${data.textUpdater.fontAsset.pub.color}`;
     data.asset = asset;
 }
 
@@ -97,7 +123,7 @@ function onFntChange(event: any) {
 
 function setupProperty(path: string, value: any) {
     switch (path) {
-        // case "streaming": ui.streamingSelect.value = value; break;
+        case "color": ui.colorPicker.value = `#${value}`; break;
     }
 }
 
