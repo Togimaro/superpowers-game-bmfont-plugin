@@ -48,8 +48,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.options = options;
 
     this.needUpdateMesh = true;
-    if (options.color != null)
-      this.needUpdateMaterial = true;
+    this.needUpdateMaterial = true;
   }
 
   lateUpdate() {
@@ -91,7 +90,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       currentLine += height / 2;
     else if (this.options.verticalAlignment === "bottom")
         currentLine += height;
-    const lSpacing = (this.options.lineSpacing != null) ? this.options.lineSpacing : 0;
+    const lSpacing = (this.options.lineSpacing != null) ? this.options.lineSpacing : this.font.lineSpacing;
     while (currentChar < this.text.length) {
       currentChar = this.pushLine(currentChar, currentLine);
       currentLine -= this.font.common.lineHeight + lSpacing;
@@ -125,7 +124,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       xAdv -= width / 2;
     else if (this.options.alignment === "right")
       xAdv -= width;
-    const cSpacing = (this.options.characterSpacing != null) ? this.options.characterSpacing : 0;
+    const cSpacing = (this.options.characterSpacing != null) ? this.options.characterSpacing : this.font.characterSpacing;
     while (currentChar < this.text.length) {
       let id = this.text.charCodeAt(currentChar++);
       if (id === 10) break;
@@ -164,7 +163,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   getLineWidth(startPos: number): number {
     let currentChar = startPos;
     let xAdv = 0;
-    const cSpacing = (this.options.characterSpacing != null) ? this.options.characterSpacing : 0;
+    const cSpacing = (this.options.characterSpacing != null) ? this.options.characterSpacing : this.font.characterSpacing;
     let prevId = 0;
     while (currentChar < this.text.length) {
       let id = this.text.charCodeAt(currentChar++);
@@ -182,7 +181,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   getTextHeight(): number {
     let currentChar = 0;
     let height = 0;
-    const lSpacing = (this.options.lineSpacing != null) ? this.options.lineSpacing : 0;
+    const lSpacing = (this.options.lineSpacing != null) ? this.options.lineSpacing : this.font.lineSpacing;
     while (currentChar < this.text.length) {
       let id = this.text.charCodeAt(currentChar++);
       if (id === 10)

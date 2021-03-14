@@ -5,8 +5,8 @@ export interface BMTextRendererConfigPub {
     text: string;
     alignment: string;
     verticalAlignment: string;
-    characterSpacing: number;
-    lineSpacing: number;
+    characterSpacing?: number;
+    lineSpacing?: number;
     color?: string;
 }
 
@@ -20,8 +20,8 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
         text: { type: "string", minLength: 0, mutable: true },
         alignment: { type: "enum", items: [ "left", "center", "right" ], mutable: true },
         verticalAlignment: { type: "enum", items: [ "top", "center", "bottom" ], mutable: true },
-        characterSpacing: { type: "integer", mutable: true },
-        lineSpacing: { type: "integer", mutable: true },
+        characterSpacing: { type: "integer?", mutable: true },
+        lineSpacing: { type: "integer?", mutable: true },
         color: { type: "string?", length: 6, mutable: true }
     };
 
