@@ -8,8 +8,8 @@ export default class BMTextRendererUpdater {
     options: {
       alignment: string;
       verticalAlignment: string;
-      characterSpacing: number;
-      lineSpacing: number;
+      characterSpacing?: number;
+      lineSpacing?: number;
       color?: string;
     };
 
@@ -113,6 +113,7 @@ export default class BMTextRendererUpdater {
     };
 
     private onFontAssetTrashed = (assetId: string) => {
+        this.textRenderer.disposeMesh();
         if (this.externalSubscriber.onAssetTrashed != null) this.externalSubscriber.onAssetTrashed(assetId);
     }
 }

@@ -77,7 +77,12 @@ function onConnected() {
 
     const textActor = new SupEngine.Actor(ui.gameInstance, "Text");
     const textRenderer = new BMTextRenderer(textActor);
-    const config = { fontAssetId: SupClient.query.asset, text: noCharsetText, alignment: "center", verticalAlignment: "center", characterSpacing: 0, lineSpacing: 0 };
+    const config = {
+        fontAssetId: SupClient.query.asset,
+        text: noCharsetText,
+        alignment: "center",
+        verticalAlignment: "center"
+    };
     const bmfSubscriber = {
         onAssetReceived,
         onAssetEdited,
@@ -122,6 +127,7 @@ function onFntChange(event: any) {
 }
 
 function setupProperty(path: string, value: any) {
+    ui.settings[path].value = value;
     switch (path) {
         case "color": ui.colorPicker.value = `#${value}`; break;
     }

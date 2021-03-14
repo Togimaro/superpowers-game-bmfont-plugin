@@ -21,8 +21,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   options: {
     alignment: string;
     verticalAlignment: string;
-    characterSpacing: number;
-    lineSpacing: number;
+    characterSpacing?: number;
+    lineSpacing?: number;
     color?: string;
   };
 
@@ -42,7 +42,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.needUpdateMesh = true;
     this.needUpdateMaterial = true;
   }
-  setOptions(options: { alignment: string; verticalAlignment: string; characterSpacing: number; lineSpacing: number; color?: string; }) {
+  setOptions(options: { alignment: string; verticalAlignment: string; characterSpacing?: number; lineSpacing?: number; color?: string; }) {
     if (options.alignment == null) options.alignment = "center";
     if (options.verticalAlignment == null) options.verticalAlignment = "center";
     this.options = options;
