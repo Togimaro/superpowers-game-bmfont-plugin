@@ -6,11 +6,11 @@ export default class BMTextRendererUpdater {
     fontAssetId: string;
     text: string;
     options: {
-      alignment: string;
-      verticalAlignment: string;
-      characterSpacing?: number;
-      lineSpacing?: number;
-      color?: string;
+        alignment: string;
+        verticalAlignment: string;
+        characterSpacing?: number;
+        lineSpacing?: number;
+        color?: string;
     };
 
     private fontSubscriber: SupClient.AssetSubscriber;
@@ -21,11 +21,11 @@ export default class BMTextRendererUpdater {
         this.fontAssetId = config.fontAssetId;
         this.text = config.text;
         this.options = {
-          alignment: config.alignment,
-          verticalAlignment: config.verticalAlignment,
-          characterSpacing: config.characterSpacing,
-          lineSpacing: config.lineSpacing,
-          color: config.color,
+            alignment: config.alignment,
+            verticalAlignment: config.verticalAlignment,
+            characterSpacing: config.characterSpacing,
+            lineSpacing: config.lineSpacing,
+            color: config.color,
         };
 
         if (this.externalSubscriber == null) this.externalSubscriber = {};
@@ -41,6 +41,52 @@ export default class BMTextRendererUpdater {
     destroy() {
         if (this.fontAssetId != null) this.client.unsubAsset(this.fontAssetId, this.fontSubscriber);
     }
+
+    private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
+        this.fontAsset = asset;
+
+        this.textRenderer.setText(this.text);
+        this.textRenderer.setOptions(this.options);
+
+        this.setupFont();
+
+        if (this.externalSubscriber.onAssetReceived) this.externalSubscriber.onAssetReceived(assetId, asset);
+    }
+
+    private onFontAssetEdited = (assetId: string, command: string, ...args: any[]) => {
+        const commandFunction = this.onEditCommands[command];
+        if (commandFunction != null) commandFunction.apply(this, args);
+
+        if (this.externalSubscriber.onAssetEdited) this.externalSubscriber.onAssetEdited(assetId, command, ...args);
+    }
+
+    private onFontAssetTrashed = (assetId: string) => {
+        this.textRenderer.disposeMesh();
+        if (this.externalSubscriber.onAssetTrashed != null) this.externalSubscriber.onAssetTrashed(assetId);
+    }
+
+    private setupFont() {
+        if (this.fontAsset.pub.texture != null) {
+            const image = this.fontAsset.pub.texture.image;
+            const onLoad = () => {
+                this.textRenderer.setFont(this.fontAsset.pub);
+                this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
+            };
+            if (image.complete) onLoad();
+            else image.addEventListener("load", onLoad);
+        }
+    }
+
+    private onEditCommands: { [command: string]: Function; } = {
+        uploadBmp: () => { this.setupFont(); },
+        uploadFnt: () => { this.textRenderer.updateMesh(); },
+
+        setProperty: (path: string, value: any) => {
+            switch (path) {
+                default: this.textRenderer.setFont(this.fontAsset.pub);
+            }
+        }
+    };
 
     config_setProperty(path: string, value: any) {
         switch (path) {
@@ -71,49 +117,4 @@ export default class BMTextRendererUpdater {
         this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
     }
 
-    private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
-        this.fontAsset = asset;
-
-        this.textRenderer.setText(this.text);
-        this.textRenderer.setOptions(this.options);
-
-        this.setupFont();
-
-        if (this.externalSubscriber.onAssetReceived) this.externalSubscriber.onAssetReceived(assetId, asset);
-    }
-
-    private onFontAssetEdited = (assetId: string, command: string, ...args: any[]) => {
-        const commandFunction = this.onEditCommands[command];
-        if (commandFunction != null) commandFunction.apply(this, args);
-
-        if (this.externalSubscriber.onAssetEdited) this.externalSubscriber.onAssetEdited(assetId, command, ...args);
-    }
-
-    private setupFont() {
-        if (this.fontAsset.pub.texture != null) {
-            const image = this.fontAsset.pub.texture.image;
-            const onLoad = () => {
-                this.textRenderer.setFont(this.fontAsset.pub);
-                this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
-            };
-            if (image.complete) onLoad();
-            else image.addEventListener("load", onLoad);
-        }
-    }
-
-    private onEditCommands: { [command: string]: Function; } = {
-        uploadBmp: () => { this.setupFont(); },
-        uploadFnt: () => { this.textRenderer.updateMesh(); },
-
-        setProperty: (path: string, value: any) => {
-            switch (path) {
-                default: this.textRenderer.setFont(this.fontAsset.pub);
-            }
-        }
-    };
-
-    private onFontAssetTrashed = (assetId: string) => {
-        this.textRenderer.disposeMesh();
-        if (this.externalSubscriber.onAssetTrashed != null) this.externalSubscriber.onAssetTrashed(assetId);
-    }
 }

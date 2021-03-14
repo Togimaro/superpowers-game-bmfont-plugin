@@ -14,7 +14,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   uvs: THREE.BufferAttribute;
   indices: THREE.BufferAttribute;
 
-  MAX_CHARS = 512;
+  MAX_CHARS = 256;
 
   text: string;
   font: BMFontPub;
