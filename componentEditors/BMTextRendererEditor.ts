@@ -81,10 +81,10 @@ export default class BMTextRendererEditor {
             const cSpace = this.cSpaceCheckbox.checked ? (this.fontAsset != null ? this.fontAsset.pub.characterSpacing : 0) : null;
             this.editConfig("setProperty", "characterSpacing", cSpace);
         });
-        this.fields["characterSpacing"] = SupClient.table.appendNumberField(cSpacingRow.valueCell, 0, { min: 0 });
+        this.fields["characterSpacing"] = SupClient.table.appendNumberField(cSpacingRow.valueCell, 0, { step: "any" });
         this.fields["characterSpacing"].addEventListener("input", (event: any) => {
             if (event.target.value === "") return;
-            this.editConfig("setProperty", "characterSpacing", parseInt(event.target.value, 10));
+            this.editConfig("setProperty", "characterSpacing", parseFloat(event.target.value));
         });
         const lSpacingRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("componentEditors:BMTextRenderer.lineSpacing"), { checkbox: true });
         this.lSpaceCheckbox = lSpacingRow.checkbox;
@@ -92,10 +92,10 @@ export default class BMTextRendererEditor {
             const lSpace = this.lSpaceCheckbox.checked ? (this.fontAsset != null ? this.fontAsset.pub.lineSpacing : 0) : null;
             this.editConfig("setProperty", "lineSpacing", lSpace);
         });
-        this.fields["lineSpacing"] = SupClient.table.appendNumberField(lSpacingRow.valueCell, 0, { min: 0 });
+        this.fields["lineSpacing"] = SupClient.table.appendNumberField(lSpacingRow.valueCell, 0, { step: "any" });
         this.fields["lineSpacing"].addEventListener("input", (event: any) => {
             if (event.target.value === "") return;
-            this.editConfig("setProperty", "lineSpacing", parseInt(event.target.value, 10));
+            this.editConfig("setProperty", "lineSpacing", parseFloat(event.target.value));
         });
 
         if (this.fontAssetId != null) this.projectClient.subAsset(this.fontAssetId, "bmfont", this);

@@ -54,9 +54,13 @@ function start() {
             settingObj.addEventListener("change", (event: any) => {
                 data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], event.target.value);
             });
-        } else {
+        } else if (setting === "pixelsPerUnit") {
             settingObj.addEventListener("change", (event: any) => {
                 data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], parseInt(event.target.value, 10));
+            });
+        } else {
+            settingObj.addEventListener("change", (event: any) => {
+                data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], parseFloat(event.target.value));
             });
         }
     });
