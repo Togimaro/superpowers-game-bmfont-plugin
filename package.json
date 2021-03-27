@@ -1,5 +1,6 @@
 {
   "name": "superpowers-game-togi-bmfont-plugin",
+  "version": "0.9.0",
   "description": "BMFont implementation for Superpowers, the extensible HTML5 2D+3D game engine",
   "repository": {
     "type": "git",
