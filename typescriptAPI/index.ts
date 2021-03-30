@@ -10,5 +10,5 @@ SupCore.system.registerPlugin<SupCore.TypeScriptAPIPlugin>("typescriptAPI", "Sup
 SupCore.system.registerPlugin<SupCore.TypeScriptAPIPlugin>("typescriptAPI", "BMTextRenderer", {
   code: fs.readFileSync(`${__dirname}/Sup.BMTextRenderer.ts.txt`, { encoding: "utf8" }),
   defs: fs.readFileSync(`${__dirname}/Sup.BMTextRenderer.d.ts.txt`, { encoding: "utf8" }),
-  exposeActorComponent: { propertyName: "bmTextRenderer", className: "Sup.BMTextRenderer" }
+  exposeActorComponent: "bmTextRenderer: Sup.BMTextRenderer;"
 });

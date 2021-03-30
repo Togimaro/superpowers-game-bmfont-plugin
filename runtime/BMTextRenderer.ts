@@ -1,3 +1,5 @@
+export const componentClassName = "Sup.BMTextRenderer";
+
 export function setupComponent(player: SupRuntime.Player, component: any, config: any) {
     component.setText(config.text);
     component.setOptions({
