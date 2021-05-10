@@ -168,7 +168,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
         this.pub.bitmap = bitmap;
         this.pub.texture = texture;
 
-        if (bitmap instanceof ArrayBuffer) bitmap = new Buffer(bitmap);
+        if (bitmap instanceof ArrayBuffer) bitmap = Buffer.from(bitmap);
 
         writeFile(path.join(assetPath, "asset.json"), json, { encoding: "utf8" }, () => {
             writeFile(path.join(assetPath, "bitmap.dat"), bitmap, callback);

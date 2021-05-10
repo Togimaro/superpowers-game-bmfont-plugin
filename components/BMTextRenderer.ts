@@ -89,7 +89,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     if (this.options.verticalAlignment === "center")
       currentLine += height / 2;
     else if (this.options.verticalAlignment === "bottom")
-        currentLine += height;
+      currentLine += height;
     const lSpacing = (this.options.lineSpacing != null) ? this.options.lineSpacing : this.font.lineSpacing;
     while (currentChar < this.text.length) {
       currentChar = this.pushLine(currentChar, currentLine);
@@ -187,7 +187,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       if (id === 10)
         height += this.font.common.lineHeight + lSpacing;
     }
-    return height;
+    return height + this.font.common.lineHeight;
   }
 
   createMesh() {
