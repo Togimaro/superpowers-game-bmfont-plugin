@@ -12,7 +12,16 @@ export function setupComponent(player: SupRuntime.Player, component: any, config
 
     if (config.fontAssetId != null) {
         const font = player.getOuterAsset(config.fontAssetId).__inner;
-        component.setFont(font);
+
+        let shader: any;
+        if (config.materialType === "shader") {
+            if (config.shaderAssetId != null) {
+                const shaderAsset = player.getOuterAsset(config.shaderAssetId);
+                if (shaderAsset == null) return;
+                shader = shaderAsset.__inner;
+            }
+        }
+        component.setFont(font, config.materialType, shader);
     }
 
     component.renderUpdate();

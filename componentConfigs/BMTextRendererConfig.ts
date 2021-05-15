@@ -1,74 +1,106 @@
 export interface BMTextRendererConfigPub {
-    formatVersion?: number;
+  formatVersion?: number;
 
-    fontAssetId: string;
-    text: string;
-    alignment: string;
-    verticalAlignment: string;
-    characterSpacing?: number;
-    lineSpacing?: number;
-    color?: string;
+  fontAssetId: string;
+  text: string;
+  alignment: string;
+  verticalAlignment: string;
+  characterSpacing?: number;
+  lineSpacing?: number;
+  color?: string;
+  dropShadow?: { color: string; x: number; y: number; };
+
+  materialType: string;
+  shaderAssetId?: string;
 }
 
 export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentConfig {
-    static currentFormatVersion = 1;
+  static currentFormatVersion = 2;
 
-    static schema: SupCore.Data.Schema = {
-        formatVersion: { type: "integer" },
+  static schema: SupCore.Data.Schema = {
+    formatVersion: { type: "integer" },
 
-        fontAssetId: { type: "string?", min: 0, mutable: true },
-        text: { type: "string", minLength: 0, mutable: true },
-        alignment: { type: "enum", items: [ "left", "center", "right" ], mutable: true },
-        verticalAlignment: { type: "enum", items: [ "top", "center", "bottom" ], mutable: true },
-        characterSpacing: { type: "number?", mutable: true },
-        lineSpacing: { type: "number?", mutable: true },
-        color: { type: "string?", length: 6, mutable: true }
+    fontAssetId: { type: "string?", min: 0, mutable: true },
+    text: { type: "string", minLength: 0, mutable: true },
+    alignment: { type: "enum", items: ["left", "center", "right"], mutable: true },
+    verticalAlignment: { type: "enum", items: ["top", "center", "bottom"], mutable: true },
+    characterSpacing: { type: "number?", mutable: true },
+    lineSpacing: { type: "number?", mutable: true },
+    color: { type: "string?", length: 6, mutable: true },
+    dropShadow: {
+      type: "hash?",
+      properties: {
+        "color": { type: "string", length: 6, mutable: true },
+        "x": { type: "number", mutable: true },
+        "y": { type: "number", mutable: true }
+      }
+    },
+    materialType: { type: "enum", items: ["basic", "shader"], mutable: true },
+    shaderAssetId: { type: "string?", min: 0, mutable: true },
+  };
+
+  static create() {
+    const emptyConfig: BMTextRendererConfigPub = {
+      formatVersion: BMTextRendererConfig.currentFormatVersion,
+
+      fontAssetId: null,
+      text: "Text",
+      alignment: "center",
+      verticalAlignment: "center",
+      characterSpacing: null,
+      lineSpacing: null,
+      color: null,
+      dropShadow: null,
+      materialType: "basic", shaderAssetId: null,
     };
+    return emptyConfig;
+  }
 
-    static create() {
-        const emptyConfig: BMTextRendererConfigPub = {
-            formatVersion: BMTextRendererConfig.currentFormatVersion,
+  static migrate(pub: BMTextRendererConfigPub) {
+    if (pub.formatVersion === BMTextRendererConfig.currentFormatVersion) return false;
 
-            fontAssetId: null,
-            text: "Text",
-            alignment: "center",
-            verticalAlignment: "center",
-            characterSpacing: null,
-            lineSpacing: null,
-            color: null,
-        };
-        return emptyConfig;
+    if (pub.formatVersion == null) {
+      pub.formatVersion = 1;
     }
 
-    static migrate(pub: BMTextRendererConfigPub) {
-        if (pub.formatVersion === BMTextRendererConfig.currentFormatVersion) return false;
+    if (pub.formatVersion === 1) {
+      pub.formatVersion = 2;
 
-        if (pub.formatVersion == null) {
-            pub.formatVersion = 1;
-        }
-
-        return true;
+      pub.dropShadow = null;
+      pub.materialType = "basic";
+      pub.shaderAssetId = null;
     }
 
-    pub: BMTextRendererConfigPub;
-    constructor(pub: BMTextRendererConfigPub) { super(pub, BMTextRendererConfig.schema); }
 
-    restore() { if (this.pub.fontAssetId != null) this.emit("addDependencies", [this.pub.fontAssetId]); }
-    destroy() { if (this.pub.fontAssetId != null) this.emit("removeDependencies", [this.pub.fontAssetId]); }
+    return true;
+  }
 
-    setProperty(path: string, value: any, callback: (err: string, actualValue?: any) => any) {
-        let oldDepId: string;
-        if (path === "fontAssetId") oldDepId = this.pub.fontAssetId;
+  pub: BMTextRendererConfigPub;
+  constructor(pub: BMTextRendererConfigPub) { super(pub, BMTextRendererConfig.schema); }
 
-        super.setProperty(path, value, (err, actualValue) => {
-            if (err != null) { callback(err); return; }
+  restore() {
+    if (this.pub.fontAssetId != null) this.emit("addDependencies", [this.pub.fontAssetId]);
+    if (this.pub.shaderAssetId != null) this.emit("addDependencies", [this.pub.shaderAssetId]);
+  }
+  destroy() {
+    if (this.pub.fontAssetId != null) this.emit("removeDependencies", [this.pub.fontAssetId]);
+    if (this.pub.shaderAssetId != null) this.emit("removeDependencies", [this.pub.shaderAssetId]);
+  }
 
-            if (path === "fontAssetId") {
-                if (oldDepId != null) this.emit("removeDependencies", [oldDepId]);
-                if (actualValue != null) this.emit("addDependencies", [actualValue]);
-            }
+  setProperty(path: string, value: any, callback: (err: string, actualValue?: any) => any) {
+    let oldDepId: string;
+    if (path === "fontAssetId") oldDepId = this.pub.fontAssetId;
+    if (path === "shaderAssetId") oldDepId = this.pub.shaderAssetId;
 
-            callback(null, actualValue);
-        });
-    }
+    super.setProperty(path, value, (err, actualValue) => {
+      if (err != null) { callback(err); return; }
+
+      if (path === "fontAssetId" || path === "shaderAssetId") {
+        if (oldDepId != null) this.emit("removeDependencies", [oldDepId]);
+        if (actualValue != null) this.emit("addDependencies", [actualValue]);
+      }
+
+      callback(null, actualValue);
+    });
+  }
 }

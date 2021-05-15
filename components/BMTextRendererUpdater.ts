@@ -3,118 +3,168 @@ import TextRenderer from "./BMTextRenderer";
 import { BMTextRendererConfigPub } from "../componentConfigs/BMTextRendererConfig";
 
 export default class BMTextRendererUpdater {
-    fontAssetId: string;
-    text: string;
-    options: {
-        alignment: string;
-        verticalAlignment: string;
-        characterSpacing?: number;
-        lineSpacing?: number;
-        color?: string;
+  fontAssetId: string;
+  text: string;
+  options: {
+    alignment: string;
+    verticalAlignment: string;
+    characterSpacing?: number;
+    lineSpacing?: number;
+    color?: string;
+  };
+  materialType: string;
+  shaderAssetId: string;
+  shaderPub: any;
+
+  private fontSubscriber: SupClient.AssetSubscriber;
+  private shaderSubscriber: SupClient.AssetSubscriber;
+  fontAsset: BMFontAsset;
+
+  constructor(private client: SupClient.ProjectClient, public textRenderer: TextRenderer, config: BMTextRendererConfigPub,
+    private externalSubscriber?: SupClient.AssetSubscriber) {
+    this.fontAssetId = config.fontAssetId;
+    this.text = config.text;
+    this.options = {
+      alignment: config.alignment,
+      verticalAlignment: config.verticalAlignment,
+      characterSpacing: config.characterSpacing,
+      lineSpacing: config.lineSpacing,
+      color: config.color,
+    };
+    this.materialType = config.materialType;
+    this.shaderAssetId = config.shaderAssetId;
+
+    if (this.externalSubscriber == null) this.externalSubscriber = {};
+
+    this.fontSubscriber = {
+      onAssetReceived: this.onFontAssetReceived,
+      onAssetEdited: this.onFontAssetEdited,
+      onAssetTrashed: this.onFontAssetTrashed
+    };
+    this.shaderSubscriber = {
+      onAssetReceived: this.onShaderAssetReceived,
+      onAssetEdited: this.onShaderAssetEdited,
+      onAssetTrashed: this.onShaderAssetTrashed
     };
 
-    private fontSubscriber: SupClient.AssetSubscriber;
-    fontAsset: BMFontAsset;
+    if (this.fontAssetId != null) this.client.subAsset(this.fontAssetId, "bmfont", this.fontSubscriber);
+    if (this.shaderAssetId != null) this.client.subAsset(this.shaderAssetId, "shader", this.shaderSubscriber);
+  }
 
-    constructor(private client: SupClient.ProjectClient, public textRenderer: TextRenderer, config: BMTextRendererConfigPub,
-        private externalSubscriber?: SupClient.AssetSubscriber) {
-        this.fontAssetId = config.fontAssetId;
-        this.text = config.text;
-        this.options = {
-            alignment: config.alignment,
-            verticalAlignment: config.verticalAlignment,
-            characterSpacing: config.characterSpacing,
-            lineSpacing: config.lineSpacing,
-            color: config.color,
-        };
+  destroy() {
+    if (this.fontAssetId != null) this.client.unsubAsset(this.fontAssetId, this.fontSubscriber);
+    if (this.shaderAssetId != null) this.client.unsubAsset(this.shaderAssetId, this.shaderSubscriber);
+  }
 
-        if (this.externalSubscriber == null) this.externalSubscriber = {};
+  private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
+    this.fontAsset = asset;
 
-        this.fontSubscriber = {
-            onAssetReceived: this.onFontAssetReceived,
-            onAssetEdited: this.onFontAssetEdited,
-            onAssetTrashed: this.onFontAssetTrashed
-        };
-        if (this.fontAssetId != null) this.client.subAsset(this.fontAssetId, "bmfont", this.fontSubscriber);
+    this.textRenderer.setText(this.text);
+    this.textRenderer.setOptions(this.options);
+
+    this.setupFont();
+
+    if (this.externalSubscriber.onAssetReceived) this.externalSubscriber.onAssetReceived(assetId, asset);
+  }
+
+  private onFontAssetEdited = (assetId: string, command: string, ...args: any[]) => {
+    const commandFunction = this.onFontEditCommands[command];
+    if (commandFunction != null) commandFunction.apply(this, args);
+
+    if (this.externalSubscriber.onAssetEdited) this.externalSubscriber.onAssetEdited(assetId, command, ...args);
+  }
+
+  private onFontEditCommands: { [command: string]: Function; } = {
+    uploadBmp: () => { this.setupFont(); },
+    uploadFnt: () => { this.textRenderer.updateMesh(); },
+
+    setProperty: (path: string, value: any) => {
+      switch (path) {
+        default: this.textRenderer.setFont(this.fontAsset.pub);
+      }
     }
+  };
 
-    destroy() {
+  private onFontAssetTrashed = (assetId: string) => {
+    this.textRenderer.disposeMesh();
+    if (this.externalSubscriber.onAssetTrashed != null) this.externalSubscriber.onAssetTrashed(assetId);
+  }
+
+  private setupFont() {
+    if (this.fontAsset.pub.texture != null) {
+      const image = this.fontAsset.pub.texture.image;
+      const onLoad = () => {
+        this.setFont();
+      };
+      if (image.complete) onLoad();
+      else image.addEventListener("load", onLoad);
+    }
+  }
+
+  private setFont() {
+    if (this.fontAsset == null || (this.materialType === "shader" && this.shaderPub == null))
+      this.textRenderer.setFont(null);
+    else
+      this.textRenderer.setFont(this.fontAsset.pub, this.materialType, this.shaderPub);
+    this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
+  }
+
+  private onShaderAssetReceived = (assetId: string, asset: { pub: any} ) => {
+    this.shaderPub = asset.pub;
+    this.setFont();
+  }
+
+  private onShaderAssetEdited = (id: string, command: string, ...args: any[]) => {
+    if (command !== "editVertexShader" && command !== "editFragmentShader") this.setFont();
+  }
+
+  private onShaderAssetTrashed = () => {
+    this.shaderPub = null;
+    this.setFont();
+  }
+
+  config_setProperty(path: string, value: any) {
+    switch (path) {
+      case "fontAssetId": {
         if (this.fontAssetId != null) this.client.unsubAsset(this.fontAssetId, this.fontSubscriber);
-    }
+        this.fontAssetId = value;
 
-    private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
-        this.fontAsset = asset;
+        this.fontAsset = null;
+        this.textRenderer.setFont(null);
 
+        if (this.fontAssetId != null) this.client.subAsset(this.fontAssetId, "bmfont", this.fontSubscriber);
+      } break;
+
+      case "text": {
+        this.text = value;
         this.textRenderer.setText(this.text);
+      } break;
+
+      case "materialType":
+        this.materialType = value;
+        this.setFont();
+        break;
+
+      case "shaderAssetId":
+        if (this.shaderAssetId != null) this.client.unsubAsset(this.shaderAssetId, this.shaderSubscriber);
+        this.shaderAssetId = value;
+
+        this.shaderPub = null;
+        this.textRenderer.setFont(null);
+
+        if (this.shaderAssetId != null) this.client.subAsset(this.shaderAssetId, "shader", this.shaderSubscriber);
+        break;
+
+      case "alignment":
+      case "verticalAlignment":
+      case "characterSpacing":
+      case "lineSpacing":
+      case "color": {
+        (this.options as any)[path] = (value !== "") ? value : null;
         this.textRenderer.setOptions(this.options);
-
-        this.setupFont();
-
-        if (this.externalSubscriber.onAssetReceived) this.externalSubscriber.onAssetReceived(assetId, asset);
+      } break;
     }
-
-    private onFontAssetEdited = (assetId: string, command: string, ...args: any[]) => {
-        const commandFunction = this.onEditCommands[command];
-        if (commandFunction != null) commandFunction.apply(this, args);
-
-        if (this.externalSubscriber.onAssetEdited) this.externalSubscriber.onAssetEdited(assetId, command, ...args);
-    }
-
-    private onFontAssetTrashed = (assetId: string) => {
-        this.textRenderer.disposeMesh();
-        if (this.externalSubscriber.onAssetTrashed != null) this.externalSubscriber.onAssetTrashed(assetId);
-    }
-
-    private setupFont() {
-        if (this.fontAsset.pub.texture != null) {
-            const image = this.fontAsset.pub.texture.image;
-            const onLoad = () => {
-                this.textRenderer.setFont(this.fontAsset.pub);
-                this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
-            };
-            if (image.complete) onLoad();
-            else image.addEventListener("load", onLoad);
-        }
-    }
-
-    private onEditCommands: { [command: string]: Function; } = {
-        uploadBmp: () => { this.setupFont(); },
-        uploadFnt: () => { this.textRenderer.updateMesh(); },
-
-        setProperty: (path: string, value: any) => {
-            switch (path) {
-                default: this.textRenderer.setFont(this.fontAsset.pub);
-            }
-        }
-    };
-
-    config_setProperty(path: string, value: any) {
-        switch (path) {
-            case "fontAssetId": {
-                if (this.fontAssetId != null) this.client.unsubAsset(this.fontAssetId, this.fontSubscriber);
-                this.fontAssetId = value;
-
-                this.fontAsset = null;
-                this.textRenderer.setFont(null);
-
-                if (this.fontAssetId != null) this.client.subAsset(this.fontAssetId, "bmfont", this.fontSubscriber);
-            } break;
-
-            case "text": {
-                this.text = value;
-                this.textRenderer.setText(this.text);
-            } break;
-
-            case "alignment":
-            case "verticalAlignment":
-            case "characterSpacing":
-            case "lineSpacing":
-            case "color": {
-                (this.options as any)[path] = (value !== "") ? value : null;
-                this.textRenderer.setOptions(this.options);
-            } break;
-        }
-        this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
-    }
+    this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
+  }
 
 }

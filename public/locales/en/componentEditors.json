@@ -17,6 +17,8 @@
     },
     "characterSpacing": "Character spacing",
     "lineSpacing": "Line spacing",
-    "color": "Color"
+    "color": "Color",
+    "material": "Material",
+    "shader": "Shader"
   }
 }
