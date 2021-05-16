@@ -8,6 +8,8 @@ const ui: {
 
   allSettings: string[],
   settings: { [name: string]: any; }
+  opacitySelect: HTMLSelectElement;
+  opacitySlider: HTMLInputElement;
   colorPicker: HTMLInputElement,
 } = {} as any;
 const noCharsetText = "The quick brown fox\njumps over the lazy dog\n\n0123456789 +-*/=";
@@ -44,7 +46,7 @@ function start() {
   fntSelect.addEventListener("change", onFntChange);
   document.querySelector("button.uploadFnt").addEventListener("click", () => { fntSelect.click(); });
 
-  ui.allSettings = ["filtering", "pixelsPerUnit", "color", "characterSpacing", "lineSpacing"];
+  ui.allSettings = ["filtering", "pixelsPerUnit", "opacity", "color", "characterSpacing", "lineSpacing"];
   ui.settings = {};
   ui.allSettings.forEach((setting: string) => {
     const settingObj: any = ui.settings[setting] = document.querySelector(`.property-${setting}`);
@@ -64,6 +66,10 @@ function start() {
       });
     }
   });
+  ui.opacitySelect = <HTMLSelectElement>document.querySelector(".opacity-select");
+  ui.opacitySelect.addEventListener("change", (event: any) => { data.projectClient.editAsset(SupClient.query.asset, "setProperty", "opacity", event.target.value === "transparent" ? 1 : null); });
+  ui.opacitySlider = <HTMLInputElement>document.querySelector(".opacity-slider");
+  ui.opacitySlider.addEventListener("input", (event: any) => { data.projectClient.editAsset(SupClient.query.asset, "setProperty", "opacity", parseFloat(event.target.value)); });
 
   ui.colorPicker = document.querySelector("input.color-picker") as HTMLInputElement;
   ui.colorPicker.addEventListener("change", (event: any) => {
@@ -98,9 +104,8 @@ function onConnected() {
 
 function onAssetReceived(err: string, asset: BMFontAsset) {
   ui.allSettings.forEach((setting: string) => {
-    ui.settings[setting].value = (data.textUpdater.fontAsset.pub as any)[setting];
+    setupProperty(setting, (data.textUpdater.fontAsset.pub as any)[setting]);
   });
-  ui.colorPicker.value = `#${data.textUpdater.fontAsset.pub.color}`;
   data.asset = asset;
 }
 
@@ -134,6 +139,18 @@ function onFntChange(event: any) {
 function setupProperty(path: string, value: any) {
   ui.settings[path].value = value;
   switch (path) {
+    case "opacity":
+      if (value == null) {
+        ui.opacitySelect.value = "opaque";
+        ui.opacitySlider.parentElement.hidden = true;
+        data.textUpdater.config_setProperty("opacity", null);
+      } else {
+        ui.opacitySelect.value = "transparent";
+        ui.opacitySlider.parentElement.hidden = false;
+        ui.opacitySlider.value = value;
+        data.textUpdater.config_setProperty("opacity", value);
+      }
+      break;
     case "color": ui.colorPicker.value = `#${value}`; break;
   }
 }

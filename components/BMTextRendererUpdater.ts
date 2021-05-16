@@ -5,13 +5,15 @@ import { BMTextRendererConfigPub } from "../componentConfigs/BMTextRendererConfi
 export default class BMTextRendererUpdater {
   fontAssetId: string;
   text: string;
-  options: {
+  textOptions: {
     alignment: string;
     verticalAlignment: string;
     characterSpacing?: number;
     lineSpacing?: number;
-    color?: string;
   };
+  overrideOpacity = false;
+  opacity: number;
+  color: string;
   materialType: string;
   shaderAssetId: string;
   shaderPub: any;
@@ -24,13 +26,16 @@ export default class BMTextRendererUpdater {
     private externalSubscriber?: SupClient.AssetSubscriber) {
     this.fontAssetId = config.fontAssetId;
     this.text = config.text;
-    this.options = {
+    this.textOptions = {
       alignment: config.alignment,
       verticalAlignment: config.verticalAlignment,
       characterSpacing: config.characterSpacing,
       lineSpacing: config.lineSpacing,
-      color: config.color,
     };
+    this.overrideOpacity = config.overrideOpacity;
+    this.opacity = config.opacity;
+    this.color = config.color;
+    if (this.overrideOpacity) this.textRenderer.setOpacity(this.opacity);
     this.materialType = config.materialType;
     this.shaderAssetId = config.shaderAssetId;
 
@@ -59,8 +64,10 @@ export default class BMTextRendererUpdater {
   private onFontAssetReceived = (assetId: string, asset: BMFontAsset) => {
     this.fontAsset = asset;
 
-    this.textRenderer.setText(this.text);
-    this.textRenderer.setOptions(this.options);
+    this.textRenderer.text = this.text;
+    this.textRenderer.color = this.color;
+    if (!this.overrideOpacity) this.textRenderer.opacity = asset.pub.opacity;
+    this.textRenderer.setTextOptions(this.textOptions);
 
     this.setupFont();
 
@@ -109,7 +116,7 @@ export default class BMTextRendererUpdater {
     this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation
   }
 
-  private onShaderAssetReceived = (assetId: string, asset: { pub: any} ) => {
+  private onShaderAssetReceived = (assetId: string, asset: { pub: any }) => {
     this.shaderPub = asset.pub;
     this.setFont();
   }
@@ -125,7 +132,7 @@ export default class BMTextRendererUpdater {
 
   config_setProperty(path: string, value: any) {
     switch (path) {
-      case "fontAssetId": {
+      case "fontAssetId":
         if (this.fontAssetId != null) this.client.unsubAsset(this.fontAssetId, this.fontSubscriber);
         this.fontAssetId = value;
 
@@ -133,12 +140,27 @@ export default class BMTextRendererUpdater {
         this.textRenderer.setFont(null);
 
         if (this.fontAssetId != null) this.client.subAsset(this.fontAssetId, "bmfont", this.fontSubscriber);
-      } break;
+        break;
 
-      case "text": {
+      case "text":
         this.text = value;
         this.textRenderer.setText(this.text);
-      } break;
+        break;
+
+      case "overrideOpacity":
+        this.overrideOpacity = value;
+        this.textRenderer.setOpacity(value ? this.opacity : (this.fontAsset != null ? this.fontAsset.pub.opacity : null));
+        break;
+
+      case "opacity":
+        this.opacity = value;
+        this.textRenderer.setOpacity(this.opacity);
+        break;
+
+      case "color":
+        this.color = value;
+        this.textRenderer.setColor(this.color);
+        break;
 
       case "materialType":
         this.materialType = value;
@@ -158,10 +180,9 @@ export default class BMTextRendererUpdater {
       case "alignment":
       case "verticalAlignment":
       case "characterSpacing":
-      case "lineSpacing":
-      case "color": {
-        (this.options as any)[path] = (value !== "") ? value : null;
-        this.textRenderer.setOptions(this.options);
+      case "lineSpacing": {
+        (this.textOptions as any)[path] = (value !== "") ? value : null;
+        this.textRenderer.setTextOptions(this.textOptions);
       } break;
     }
     this.textRenderer.renderUpdate(); // need to update mesh immediately in editor for the bounding box computation

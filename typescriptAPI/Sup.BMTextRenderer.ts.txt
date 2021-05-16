@@ -29,7 +29,7 @@ namespace Sup {
         }
 
         getColor() {
-            var color = (this.__inner.options.color != null) ? this.__inner.options.color : this.__inner.font.color;
+            var color = (this.__inner.options.color != null) ? this.__inner.color : this.__inner.font.color;
             return new Sup.Color(1, 1, 1).setHex(parseInt(color, 16));
         }
         setColor(r, g, b) {
@@ -37,9 +37,7 @@ namespace Sup {
             if (g == null && b == null) color = r;
             else color = new Sup.Color(r, g, b);
 
-            var options = this.__inner.options;
-            options.color = color.getHexString();
-            this.__inner.setOptions(options);
+            this.__inner.setColor(color.getHexString());
             return this;
         }
     }

@@ -2,16 +2,18 @@ export const componentClassName = "Sup.BMTextRenderer";
 
 export function setupComponent(player: SupRuntime.Player, component: any, config: any) {
   component.setText(config.text);
-  component.setOptions({
+  component.setTextOptions({
     alignment: config.alignment,
     verticalAlignment: config.verticalAlignment,
     characterSpacing: config.characterSpacing,
-    lineSpacing: config.lineSpacing,
-    color: config.color
+    lineSpacing: config.lineSpacing
   });
+  component.setColor(config.color);
+  if (config.overrideOpacity) component.opacity = config.opacity;
 
   if (config.fontAssetId != null) {
     const font = player.getOuterAsset(config.fontAssetId).__inner;
+    if (!config.overrideOpacity) component.opacity = font.opacity;
 
     let shader: any;
     if (config.materialType === "shader") {

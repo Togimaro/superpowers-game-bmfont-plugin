@@ -27,9 +27,10 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     verticalAlignment: string;
     characterSpacing?: number;
     lineSpacing?: number;
-    color?: string;
     dropshadow? : { color: string; x: number; y: number; };
   };
+  opacity: number;
+  color?: string;
   materialType = "basic";
   shaderAsset: any;
 
@@ -56,17 +57,23 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.needUpdateMaterial = true;
     this.needUpdateShadow = true;
   }
-  setOptions(options: { alignment: string; verticalAlignment: string; characterSpacing?: number; lineSpacing?: number; color?: string; }) {
+  setColor(color: string) {
+    this.color = color;
+    this.needUpdateMaterial = true;
+  }
+  setOpacity(opacity: number) {
+    this.opacity = opacity;
+    this.needUpdateMaterial = true;
+  }
+  setTextOptions(options: { alignment: string; verticalAlignment: string; characterSpacing?: number; lineSpacing?: number; }) {
     if (options.alignment == null) options.alignment = "center";
     if (options.verticalAlignment == null) options.verticalAlignment = "center";
     this.options.alignment = options.alignment;
     this.options.verticalAlignment = options.verticalAlignment;
     this.options.characterSpacing = options.characterSpacing;
     this.options.lineSpacing = options.lineSpacing;
-    this.options.color = options.color;
 
     this.needUpdateMesh = true;
-    this.needUpdateMaterial = true;
   }
   setDropshadow(dropshadow: { color: string; x: number; y: number; }) {
     this.options.dropshadow = dropshadow;
@@ -116,11 +123,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       this.disposeMesh();
     }
 
-    if (this.threeMesh == null) {
+    if (this.threeMesh == null)
       this.createMesh();
-      this.needUpdateMaterial = true;
-      this.needUpdateShadow = true;
-    }
 
     let currentChar = 0;
     let currentLine = 0;
@@ -151,23 +155,34 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     if (this.threeMesh == null || this.font == null) return;
     this.disposeMaterial();
     let geometry = this.threeMesh.geometry as THREE.BufferGeometry;
-    const color = (this.options.color != null) ? this.options.color : this.font.color;
-    this.material = this.createMaterial(geometry, parseInt(color, 16));
-    const shadowColor = (this.options.dropshadow != null) ? this.options.dropshadow.color : "0xFFFFFF";
-    this.materialShadow = this.createMaterial(geometry, parseInt(shadowColor, 16));
+    this.material = this.createMaterial(geometry);
+    this.materialShadow = this.createMaterial(geometry);
+    this.needUpdateMaterial = true;
+    this.needUpdateShadow = true;
 
     this.threeMesh.material = this.material;
     this.threeMeshShadow.material = this.materialShadow;
   }
 
   updateMaterial() {
-    if (this.threeMesh == null || this.font == null) return;
-    const color = (this.options.color != null) ? this.options.color : this.font.color;
+    if (this.material == null || this.font == null) return;
+    const color = (this.color != null) ? this.color : this.font.color;
+
+    if (this.opacity != null) {
+      this.material.transparent = true;
+      this.material.depthWrite = false;
+      this.material.opacity = this.opacity;
+    } else {
+      this.material.transparent = false;
+      this.material.depthWrite = true;
+      this.material.opacity = 1;
+    }
 
     if (this.material instanceof THREE.ShaderMaterial) {
       const uniforms = (<THREE.ShaderMaterial>this.material).uniforms;
       if (uniforms.map != null) uniforms.map.value = this.font.texture;
       if (uniforms.color != null) uniforms.color.value.setHex(parseInt(color, 16));
+      if (uniforms.opacity != null) uniforms.opacity.value = this.material.opacity;
     } else {
       (this.material as THREE.MeshBasicMaterial).map = this.font.texture;
       (this.material as THREE.MeshBasicMaterial).color.setHex(parseInt(color, 16));
@@ -271,11 +286,16 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
 
   createMesh() {
     if (this.threeMesh != null) return;
-    const color = (this.options.color != null) ? this.options.color : this.font.color;
     const geometry = new THREE.BufferGeometry();
 
-    if (this.material == null) this.material = this.createMaterial(geometry, parseInt(color, 16));
-    if (this.materialShadow == null) this.materialShadow = this.createMaterial(geometry, 0xFFFFFF);
+    if (this.material == null) {
+      this.material = this.createMaterial(geometry);
+      this.needUpdateMaterial = true;
+    }
+    if (this.materialShadow == null) {
+      this.materialShadow = this.createMaterial(geometry);
+      this.needUpdateShadow = true;
+    }
 
     this.positions = new THREE.BufferAttribute(new Float32Array(this.MAX_CHARS * 3 * 4), 3);
     this.positions.dynamic = true;
@@ -307,18 +327,15 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.actor.threeObject.add(this.threeMeshShadow);
   }
 
-  createMaterial(geometry: THREE.BufferGeometry, defaultColor: number) {
+  createMaterial(geometry: THREE.BufferGeometry) {
     let material: THREE.MeshBasicMaterial|THREE.ShaderMaterial;
     if (this.materialType === "shader")
       material = SupEngine.componentClasses["Shader"].createShaderMaterial(
         this.shaderAsset, {"map": this.font.texture}, geometry
       );
-    else {
-      material = new THREE.MeshBasicMaterial();
-      (<any>material as THREE.MeshBasicMaterial).map = this.font.texture;
-      (<any>material as THREE.MeshBasicMaterial).color.setHex(defaultColor);
-    }
-    material.alphaTest = 0.1;
+    else
+      material = new THREE.MeshBasicMaterial({map: this.font.texture});
+    material.alphaTest = 0.01;
     material.side = THREE.DoubleSide;
     return material;
   }

@@ -20,8 +20,14 @@
     "nearest": "Nearest",
     "linear": "Linear"
   },
+  "opacity": {
+    "title": "Opacity",
+    "opaque": "Opaque",
+    "transparent": "Transparent"
+  },
+  "color": "Color",
+  "layoutSettings": "Layout settings",
   "pixelsPerUnit": "Pixels / Unit",
   "characterSpacing": "Character spacing",
-  "lineSpacing": "Line spacing",
-  "color": "Color"
+  "lineSpacing": "Line spacing"
 }

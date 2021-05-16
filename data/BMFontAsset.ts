@@ -16,6 +16,10 @@ export interface BMFontPub {
 
   bitmap: Buffer;
   filtering: string;
+  pixelsPerUnit: number;
+  opacity: number;
+  color: string;
+
   common: {
     lineHeight: number;
     base: number;
@@ -38,10 +42,8 @@ export interface BMFontPub {
     amount: number;
   }[];
 
-  pixelsPerUnit: number;
   characterSpacing: number;
   lineSpacing: number;
-  color: string;
 
   texture?: THREE.Texture;
 }
@@ -54,6 +56,9 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
 
     bitmap: { type: "buffer" },
     filtering: { type: "enum", items: [ "nearest", "linear"], mutable: true },
+    pixelsPerUnit: { type: "number", minExcluded: 0, mutable: true },
+    opacity: { type: "number?", min: 0, max: 1, mutable: true },
+    color: { type: "string", length: 6, mutable: true },
     common: {
       type: "hash",
       properties: {
@@ -90,8 +95,6 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
         }
       }
     },
-    pixelsPerUnit: { type: "number", minExcluded: 0, mutable: true },
-    color: { type: "string", length: 6, mutable: true },
     characterSpacing: { type: "number", mutable: true },
     lineSpacing: { type: "number", mutable: true },
   };
@@ -110,6 +113,9 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
 
       bitmap: Buffer.alloc(0),
       filtering: "nearest",
+      pixelsPerUnit: 20,
+      opacity: null,
+      color: "ffffff",
 
       common: {
         lineHeight: 0,
@@ -120,10 +126,8 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
       chars: [],
       kernings: [],
 
-      pixelsPerUnit: 20,
       characterSpacing: 0,
-      lineSpacing: 0,
-      color: "ffffff"
+      lineSpacing: 0
     };
     super.init(options, callback);
   }
@@ -149,6 +153,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
 
     if (pub.formatVersion === 1) {
       if (pub.filtering == null) pub.filtering = "nearest";
+      if (typeof pub.opacity === "undefined") pub.opacity = null;
       pub.formatVersion = 2;
     }
 

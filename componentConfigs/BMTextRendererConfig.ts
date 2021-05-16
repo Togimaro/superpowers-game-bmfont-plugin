@@ -3,11 +3,16 @@ export interface BMTextRendererConfigPub {
 
   fontAssetId: string;
   text: string;
+
   alignment: string;
   verticalAlignment: string;
   characterSpacing?: number;
   lineSpacing?: number;
+
+  overrideOpacity?: boolean;
+  opacity?: number;
   color?: string;
+
   dropShadow?: { color: string; x: number; y: number; };
 
   materialType: string;
@@ -26,6 +31,8 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
     verticalAlignment: { type: "enum", items: ["top", "center", "bottom"], mutable: true },
     characterSpacing: { type: "number?", mutable: true },
     lineSpacing: { type: "number?", mutable: true },
+    overrideOpacity: { type: "boolean", mutable: true },
+    opacity: { type: "number?", min: 0, max: 1, mutable: true },
     color: { type: "string?", length: 6, mutable: true },
     dropShadow: {
       type: "hash?",
@@ -50,6 +57,7 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
       characterSpacing: null,
       lineSpacing: null,
       color: null,
+      overrideOpacity: false, opacity: null,
       dropShadow: null,
       materialType: "basic", shaderAssetId: null,
     };
@@ -66,11 +74,13 @@ export default class BMTextRendererConfig extends SupCore.Data.Base.ComponentCon
     if (pub.formatVersion === 1) {
       pub.formatVersion = 2;
 
-      pub.dropShadow = null;
-      pub.materialType = "basic";
-      pub.shaderAssetId = null;
-    }
+      if (pub.dropShadow == null) pub.dropShadow = null;
+      if (pub.materialType == null) pub.materialType = "basic";
+      if (pub.shaderAssetId == null) pub.shaderAssetId = null;
 
+      if (pub.overrideOpacity == null) pub.overrideOpacity = false;
+      if (pub.opacity == null) pub.opacity = null;
+    }
 
     return true;
   }
