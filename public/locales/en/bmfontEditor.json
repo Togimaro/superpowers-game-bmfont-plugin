@@ -1,20 +1,25 @@
 {
   "title": "BMFont",
   "fontFile": {
-      "title": "Font data",
-      "download": {
-          "defaultName": "font.fnt",
-          "prompt": "Enter the name of the font"
-      }
+    "title": "Font data",
+    "download": {
+      "defaultName": "font.fnt",
+      "prompt": "Enter the name of the font"
+    }
   },
   "bitmapFile": {
-      "title": "Bitmap",
-      "download": {
-          "defaultName": "font.png",
-          "prompt": "Enter the name of the font"
-      }
+    "title": "Bitmap",
+    "download": {
+      "defaultName": "font.png",
+      "prompt": "Enter the name of the font"
+    }
   },
   "rendering": "Rendering",
+  "filtering": {
+    "title": "Filtering",
+    "nearest": "Nearest",
+    "linear": "Linear"
+  },
   "pixelsPerUnit": "Pixels / Unit",
   "characterSpacing": "Character spacing",
   "lineSpacing": "Line spacing",

@@ -29,6 +29,12 @@ html
         tr
           th(colspan="2")= t("bmfontEditor:rendering")
           tr
+            th= t("bmfontEditor:filtering.title")
+            td
+              select.property-filtering
+                option(value="nearest")= t("bmfontEditor:filtering.nearest")
+                option(value="linear")= t("bmfontEditor:filtering.linear")
+          tr
             th= t("bmfontEditor:pixelsPerUnit")
             td
               input(type="number").property-pixelsPerUnit

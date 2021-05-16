@@ -15,6 +15,7 @@ export interface BMFontPub {
   formatVersion: number;
 
   bitmap: Buffer;
+  filtering: string;
   common: {
     lineHeight: number;
     base: number;
@@ -42,17 +43,17 @@ export interface BMFontPub {
   lineSpacing: number;
   color: string;
 
-  name?: string;
   texture?: THREE.Texture;
 }
 
 export default class BMFontAsset extends SupCore.Data.Base.Asset {
-  static currentFormatVersion = 1;
+  static currentFormatVersion = 2;
 
   static schema: SupCore.Data.Schema = {
     formatVersion: { type: "integer" },
 
     bitmap: { type: "buffer" },
+    filtering: { type: "enum", items: [ "nearest", "linear"], mutable: true },
     common: {
       type: "hash",
       properties: {
@@ -108,6 +109,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
       formatVersion: BMFontAsset.currentFormatVersion,
 
       bitmap: Buffer.alloc(0),
+      filtering: "nearest",
 
       common: {
         lineHeight: 0,
@@ -143,6 +145,11 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
 
     if (pub.formatVersion == null) {
       pub.formatVersion = 1;
+    }
+
+    if (pub.formatVersion === 1) {
+      if (pub.filtering == null) pub.filtering = "nearest";
+      pub.formatVersion = 2;
     }
 
     callback(true);
@@ -189,8 +196,10 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
     image.src = this.url;
 
     this.pub.texture = new THREE.Texture(image);
-    this.pub.texture.magFilter = THREE.NearestFilter;
-    this.pub.texture.minFilter = THREE.NearestFilter;
+    if (this.pub.filtering === "nearest") {
+      this.pub.texture.magFilter = THREE.NearestFilter;
+      this.pub.texture.minFilter = THREE.NearestFilter;
+    }
 
     if (!image.complete) image.addEventListener("load", () => { this.pub.texture.needsUpdate = true; });
   }
@@ -289,5 +298,18 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
 
   client_setProperty(path: string, value: any) {
     super.client_setProperty(path, value);
+
+    switch (path) {
+      case "filtering":
+        if (this.pub.filtering === "nearest") {
+          this.pub.texture.magFilter = THREE.NearestFilter;
+          this.pub.texture.minFilter = THREE.NearestFilter;
+        } else {
+          this.pub.texture.magFilter = THREE.LinearFilter;
+          this.pub.texture.minFilter = THREE.LinearMipMapLinearFilter;
+        }
+        this.pub.texture.needsUpdate = true;
+        break;
+    }
   }
 }
