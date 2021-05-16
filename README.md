@@ -7,7 +7,11 @@ BMFont implementation for Superpowers, the extensible HTML5 2D+3D game engine.
 - Run `npm run build bmfont`
 - Start the server and you're done!
 
+## Known issue
+- When switching shader you need to reopen the scene
+
 ## To-do
-- Add outline and drop-shadow
+- Expose transparency & drop-shadow to componentEditor
+- Add outline
 - Improve asset editor
 - Add a test project
