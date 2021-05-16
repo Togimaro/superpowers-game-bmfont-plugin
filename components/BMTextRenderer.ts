@@ -11,8 +11,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   threeMesh: THREE.Mesh;
   threeMeshShadow: THREE.Mesh; // maybe merge the two together in the future
 
-  material: THREE.MeshBasicMaterial|THREE.ShaderMaterial;
-  materialShadow: THREE.MeshBasicMaterial|THREE.ShaderMaterial;
+  material: THREE.ShaderMaterial;
+  materialShadow: THREE.ShaderMaterial;
   positions: THREE.BufferAttribute;
   uvs: THREE.BufferAttribute;
   charIds: THREE.BufferAttribute;
@@ -95,14 +95,10 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     this.needUpdateMaterial = false;
     this.needUpdateShadow = false;
 
-    if (this.material != null) {
-      const uniforms = (<THREE.ShaderMaterial>this.material).uniforms;
-      if (uniforms != null) uniforms.time.value += 1 / this.actor.gameInstance.framesPerSecond;
-    }
-    if (this.materialShadow != null) {
-      const uniforms = (<THREE.ShaderMaterial>this.materialShadow).uniforms;
-      if (uniforms != null) uniforms.time.value += 1 / this.actor.gameInstance.framesPerSecond;
-    }
+    if (this.material != null)
+      this.material.uniforms.time.value += 1 / this.actor.gameInstance.framesPerSecond;
+    if (this.materialShadow != null)
+      this.materialShadow.uniforms.time.value += 1 / this.actor.gameInstance.framesPerSecond;
   }
 
   nextPow2(aSize: number): number {
@@ -178,15 +174,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       this.material.opacity = 1;
     }
 
-    if (this.material instanceof THREE.ShaderMaterial) {
-      const uniforms = (<THREE.ShaderMaterial>this.material).uniforms;
-      if (uniforms.map != null) uniforms.map.value = this.font.texture;
-      if (uniforms.color != null) uniforms.color.value.setHex(parseInt(color, 16));
-      if (uniforms.opacity != null) uniforms.opacity.value = this.material.opacity;
-    } else {
-      (this.material as THREE.MeshBasicMaterial).map = this.font.texture;
-      (this.material as THREE.MeshBasicMaterial).color.setHex(parseInt(color, 16));
-    }
+    this.material.uniforms.color.value.setHex(parseInt(color, 16));
+    this.material.uniforms.opacity.value = this.material.opacity;
   }
 
   updateShadow() {
@@ -194,14 +183,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     if (this.options.dropshadow) {
       let options = this.options.dropshadow;
 
-      if (this.materialShadow instanceof THREE.ShaderMaterial) {
-        const uniforms = (<THREE.ShaderMaterial>this.materialShadow).uniforms;
-        if (uniforms.map != null) uniforms.map.value = this.font.texture;
-        if (uniforms.color != null) uniforms.color.value.setHex(parseInt(options.color, 16));
-      } else {
-        (this.materialShadow as THREE.MeshBasicMaterial).map = this.font.texture;
-        (this.materialShadow as THREE.MeshBasicMaterial).color.setHex(parseInt(options.color, 16));
-      }
+      this.materialShadow.uniforms.color.value.setHex(parseInt(options.color, 16));
 
       this.threeMeshShadow.position.set(options.x / this.font.pixelsPerUnit, options.y / this.font.pixelsPerUnit, -0.01);
       this.threeMeshShadow.visible = true;
@@ -328,13 +310,77 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   }
 
   createMaterial(geometry: THREE.BufferGeometry) {
-    let material: THREE.MeshBasicMaterial|THREE.ShaderMaterial;
-    if (this.materialType === "shader")
+    let material: THREE.ShaderMaterial;
+    // TODO: refacto default uniforms assignement & put default shader in a separate file
+    if (this.materialType === "shader") {
       material = SupEngine.componentClasses["Shader"].createShaderMaterial(
-        this.shaderAsset, {"map": this.font.texture}, geometry
+        this.shaderAsset, {
+          "time": 0.0,
+          "map": this.font.texture,
+          "color": new THREE.Color(0xFFFFFF),
+          "opacity": 1.0
+        }, geometry
       );
-    else
-      material = new THREE.MeshBasicMaterial({map: this.font.texture});
+    }
+    else {
+      material = new THREE.ShaderMaterial({
+        vertexShader:
+`varying vec2 vUv;
+
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`,
+        fragmentShader:
+`uniform sampler2D map;
+uniform vec3 color;
+uniform float opacity;
+
+varying vec2 vUv;
+
+#ifdef BMFONT_MSDF
+#extension GL_OES_standard_derivatives : enable
+
+float median(float r, float g, float b) {
+  return max(min(r, g), min(max(r, g), b));
+}
+#endif
+
+void main() {
+#ifdef BMFONT_MSDF
+  vec3 sample = texture2D(map, vUv).rgb;
+  float sigDist = median(sample.r, sample.g, sample.b) - 0.5;
+  float alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
+
+  gl_FragColor = vec4(color, alpha * opacity);
+#else
+  vec4 diffuseColor = vec4(color, opacity);
+
+  vec4 texelColor = texture2D(map, vUv);
+  diffuseColor *= texelColor;
+
+  gl_FragColor = diffuseColor;
+#endif
+
+  #ifdef ALPHATEST
+    if ( gl_FragColor.a < ALPHATEST ) discard;
+  #endif
+
+  #ifdef PREMULTIPLIED_ALPHA
+    gl_FragColor.rgb *= gl_FragColor.a;
+  #endif
+}`,
+        uniforms: {
+          "time": { type: "f", value: 0.0 },
+          "map": { type: "t", value: this.font.texture },
+          "color": { type: "c", value: new THREE.Color(0xFFFFFF) },
+          "opacity": { type: "f", value: 1.0 }
+        }
+      });
+    }
+    if (this.font.renderingType === "bitmap") material.defines["BMFONT_BITMAP"] = "";
+    if (this.font.renderingType === "sdf") material.defines["BMFONT_SDF"] = "";
+    if (this.font.renderingType === "msdf") material.defines["BMFONT_MSDF"] = "";
     material.alphaTest = 0.01;
     material.side = THREE.DoubleSide;
     return material;

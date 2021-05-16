@@ -15,6 +15,7 @@ export interface BMFontPub {
   formatVersion: number;
 
   bitmap: Buffer;
+  renderingType: string;
   filtering: string;
   pixelsPerUnit: number;
   opacity: number;
@@ -55,6 +56,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
     formatVersion: { type: "integer" },
 
     bitmap: { type: "buffer" },
+    renderingType: { type: "enum", items: [ "bitmap", "sdf", "msdf"], mutable: true },
     filtering: { type: "enum", items: [ "nearest", "linear"], mutable: true },
     pixelsPerUnit: { type: "number", minExcluded: 0, mutable: true },
     opacity: { type: "number?", min: 0, max: 1, mutable: true },
@@ -112,6 +114,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
       formatVersion: BMFontAsset.currentFormatVersion,
 
       bitmap: Buffer.alloc(0),
+      renderingType: "bitmap",
       filtering: "nearest",
       pixelsPerUnit: 20,
       opacity: null,
@@ -152,6 +155,7 @@ export default class BMFontAsset extends SupCore.Data.Base.Asset {
     }
 
     if (pub.formatVersion === 1) {
+      if (pub.renderingType == null) pub.renderingType = "bitmap";
       if (pub.filtering == null) pub.filtering = "nearest";
       if (typeof pub.opacity === "undefined") pub.opacity = null;
       pub.formatVersion = 2;

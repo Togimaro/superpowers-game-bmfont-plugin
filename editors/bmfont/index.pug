@@ -14,20 +14,27 @@ html
       table.properties
         tr
           th(colspan="2")= t("bmfontEditor:title")
-        tr
-          th= t("bmfontEditor:fontFile.title")
-          td
-            button.uploadFnt= t("common:actions.upload")
-            form(style="display: none")
-              input.fnt-select(type="file",accept=".fnt")
-        tr
-          th= t("bmfontEditor:bitmapFile.title")
-          td
-            button.uploadBmp= t("common:actions.upload")
-            form(style="display: none")
-              input.bmp-select(type="file",accept=".png")
+          tr
+            th= t("bmfontEditor:fontFile.title")
+            td
+              button.uploadFnt= t("common:actions.upload")
+              form(style="display: none")
+                input.fnt-select(type="file",accept=".fnt")
+          tr
+            th= t("bmfontEditor:bitmapFile.title")
+            td
+              button.uploadBmp= t("common:actions.upload")
+              form(style="display: none")
+                input.bmp-select(type="file",accept=".png")
         tr
           th(colspan="2")= t("bmfontEditor:rendering")
+          tr
+            th= t("bmfontEditor:renderingType.title")
+            td
+              select.property-renderingType
+                option(value="bitmap")= t("bmfontEditor:renderingType.bitmap")
+                option(value="sdf")= t("bmfontEditor:renderingType.sdf")
+                option(value="msdf")= t("bmfontEditor:renderingType.msdf")
           tr
             th= t("bmfontEditor:filtering.title")
             td

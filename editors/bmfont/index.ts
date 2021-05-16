@@ -46,13 +46,13 @@ function start() {
   fntSelect.addEventListener("change", onFntChange);
   document.querySelector("button.uploadFnt").addEventListener("click", () => { fntSelect.click(); });
 
-  ui.allSettings = ["filtering", "pixelsPerUnit", "opacity", "color", "characterSpacing", "lineSpacing"];
+  ui.allSettings = ["renderingType", "filtering", "pixelsPerUnit", "opacity", "color", "characterSpacing", "lineSpacing"];
   ui.settings = {};
   ui.allSettings.forEach((setting: string) => {
     const settingObj: any = ui.settings[setting] = document.querySelector(`.property-${setting}`);
     settingObj.dataset["name"] = setting;
 
-    if (setting === "color" || setting === "filtering") {
+    if (setting === "color" || setting === "filtering" || setting === "renderingType") {
       settingObj.addEventListener("change", (event: any) => {
         data.projectClient.editAsset(SupClient.query.asset, "setProperty", event.target.dataset["name"], event.target.value);
       });

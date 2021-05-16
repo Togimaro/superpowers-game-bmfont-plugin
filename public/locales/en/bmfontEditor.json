@@ -15,6 +15,12 @@
     }
   },
   "rendering": "Rendering",
+  "renderingType": {
+    "title": "Rendering type",
+    "bitmap": "Bitmap",
+    "sdf": "Signed Distance Field (SDF)",
+    "msdf": "Multi-channel SDF (MSDF)"
+  },
   "filtering": {
     "title": "Filtering",
     "nearest": "Nearest",
