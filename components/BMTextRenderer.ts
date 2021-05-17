@@ -108,7 +108,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   logicalChar = 0;
   updateMesh() {
     if (this.text == null || this.font == null) {
-      this.disposeMesh();
+      this.hideMesh();
       return;
     }
 
@@ -121,6 +121,10 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
 
     if (this.threeMesh == null)
       this.createMesh();
+    else if (this.threeMesh.parent == null) {
+        this.actor.threeObject.add(this.threeMesh);
+        this.actor.threeObject.add(this.threeMeshShadow);
+    }
 
     let currentChar = 0;
     let currentLine = 0;
@@ -338,7 +342,17 @@ uniform float opacity;
 
 varying vec2 vUv;
 
-#ifdef BMFONT_MSDF
+#if defined(BMFONT_SDF)
+float aastep(float value) {
+  #ifdef GL_OES_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+    return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);
+  #else
+    return step(0.5, value);
+  #endif
+}
+#elif defined(BMFONT_MSDF)
 #extension GL_OES_standard_derivatives : enable
 
 float median(float r, float g, float b) {
@@ -347,7 +361,11 @@ float median(float r, float g, float b) {
 #endif
 
 void main() {
-#ifdef BMFONT_MSDF
+#if defined(BMFONT_SDF)
+  float sample = texture2D(map, vUv).r;
+
+  gl_FragColor = vec4(color, aastep(sample) * opacity);
+#elif defined(BMFONT_MSDF)
   vec3 sample = texture2D(map, vUv).rgb;
   float sigDist = median(sample.r, sample.g, sample.b) - 0.5;
   float alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
@@ -384,6 +402,12 @@ void main() {
     material.alphaTest = 0.01;
     material.side = THREE.DoubleSide;
     return material;
+  }
+
+  hideMesh() {
+    if (this.threeMesh == null) return;
+    this.actor.threeObject.remove(this.threeMesh);
+    this.actor.threeObject.remove(this.threeMeshShadow);
   }
 
   disposeMesh() {
