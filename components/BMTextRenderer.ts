@@ -18,7 +18,7 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
   charIds: THREE.BufferAttribute;
   indices: THREE.BufferAttribute;
 
-  MAX_CHARS = 32;
+  MAX_CHARS = 128;
 
   text: string;
   font: BMFontPub;
@@ -280,9 +280,9 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     }
 
     this.positions = new THREE.BufferAttribute(new Float32Array(this.MAX_CHARS * 3 * 4), 3);
-    this.positions.dynamic = true;
+    this.positions.setUsage(THREE.DynamicDrawUsage);
     this.uvs = new THREE.BufferAttribute(new Float32Array(this.MAX_CHARS * 2 * 4), 2);
-    this.uvs.dynamic = true;
+    this.uvs.setUsage(THREE.DynamicDrawUsage);
     this.indices = new THREE.BufferAttribute(new Uint32Array(this.MAX_CHARS * 6), 1);
     for (let i = 0; i < this.MAX_CHARS; i++) {
       this.indices.setXYZ(i * 6 + 0, i * 4 + 0, i * 4 + 1, i * 4 + 2);
@@ -295,9 +295,9 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       this.charIds.setX(i * 4 + 2, i);
       this.charIds.setX(i * 4 + 3, i);
     }
-    geometry.addAttribute("position", this.positions);
-    geometry.addAttribute("uv", this.uvs);
-    geometry.addAttribute("charId", this.charIds);
+    geometry.setAttribute("position", this.positions);
+    geometry.setAttribute("uv", this.uvs);
+    geometry.setAttribute("charId", this.charIds);
     geometry.setIndex(this.indices);
 
     this.threeMesh = new THREE.Mesh(geometry, this.material);
@@ -307,6 +307,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
 
     this.actor.threeObject.add(this.threeMesh);
     this.actor.threeObject.add(this.threeMeshShadow);
+
+    this.needUpdateShadow = true;
   }
 
   createMaterial(geometry: THREE.BufferGeometry) {
