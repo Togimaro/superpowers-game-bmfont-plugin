@@ -178,8 +178,10 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
       this.material.opacity = 1;
     }
 
-    this.material.uniforms.color.value.setHex(parseInt(color, 16));
-    this.material.uniforms.opacity.value = this.material.opacity;
+    if (this.material.uniforms.color != null)
+      this.material.uniforms.color.value.setHex(parseInt(color, 16));
+    if (this.material.uniforms.opacity != null)
+      this.material.uniforms.opacity.value = this.material.opacity;
   }
 
   updateShadow() {
@@ -187,7 +189,8 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
     if (this.options.dropshadow) {
       let options = this.options.dropshadow;
 
-      this.materialShadow.uniforms.color.value.setHex(parseInt(options.color, 16));
+      if (this.materialShadow.uniforms.color != null)
+        this.materialShadow.uniforms.color.value.setHex(parseInt(options.color, 16));
 
       this.threeMeshShadow.position.set(options.x / this.font.pixelsPerUnit, options.y / this.font.pixelsPerUnit, -0.01);
       this.threeMeshShadow.visible = true;
