@@ -40,5 +40,10 @@ namespace Sup {
             this.__inner.setColor(color.getHexString());
             return this;
         }
+
+        setDropshadow(dropshadow: { color: string; x: number; y: number; }) {
+            this.__inner.setDropshadow(dropshadow);
+            return this;
+        }
     }
 }
