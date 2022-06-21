@@ -320,18 +320,13 @@ export default class BMTextRenderer extends SupEngine.ActorComponent {
 
   createMaterial(geometry: THREE.BufferGeometry) {
     let material: THREE.ShaderMaterial;
-    // TODO: refacto default uniforms assignement & put default shader in a separate file
     if (this.materialType === "shader") {
       material = SupEngine.componentClasses["Shader"].createShaderMaterial(
-        this.shaderAsset, {
-          "time": 0.0,
-          "map": this.font.texture,
-          "color": new THREE.Color(0xFFFFFF),
-          "opacity": 1.0
-        }, geometry
+        this.shaderAsset, { map: this.font.texture }, geometry
       );
     }
     else {
+      // TODO: put default shader in a separate file
       material = new THREE.ShaderMaterial({
         vertexShader:
 `varying vec2 vUv;
@@ -349,17 +344,10 @@ varying vec2 vUv;
 
 #if defined(BMFONT_SDF)
 float aastep(float value) {
-  #ifdef GL_OES_standard_derivatives
-    #extension GL_OES_standard_derivatives : enable
-    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
-    return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);
-  #else
-    return step(0.5, value);
-  #endif
+  float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+  return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);
 }
 #elif defined(BMFONT_MSDF)
-#extension GL_OES_standard_derivatives : enable
-
 float median(float r, float g, float b) {
   return max(min(r, g), min(max(r, g), b));
 }
@@ -367,12 +355,12 @@ float median(float r, float g, float b) {
 
 void main() {
 #if defined(BMFONT_SDF)
-  float sample = texture2D(map, vUv).r;
+  float distSample = texture2D(map, vUv).r;
 
-  gl_FragColor = vec4(color, aastep(sample) * opacity);
+  gl_FragColor = vec4(color, aastep(distSample) * opacity);
 #elif defined(BMFONT_MSDF)
-  vec3 sample = texture2D(map, vUv).rgb;
-  float sigDist = median(sample.r, sample.g, sample.b) - 0.5;
+  vec3 distSample = texture2D(map, vUv).rgb;
+  float sigDist = median(distSample.r, distSample.g, distSample.b) - 0.5;
   float alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
 
   gl_FragColor = vec4(color, alpha * opacity);
@@ -394,16 +382,17 @@ void main() {
   #endif
 }`,
         uniforms: {
-          "time": { type: "f", value: 0.0 },
-          "map": { type: "t", value: this.font.texture },
-          "color": { type: "c", value: new THREE.Color(0xFFFFFF) },
-          "opacity": { type: "f", value: 1.0 }
+          "time": { value: 0.0 },
+          "map": { value: this.font.texture },
+          "color": { value: new THREE.Color(0xFFFFFF) },
+          "opacity": { value: 1.0 }
         }
       });
     }
     if (this.font.renderingType === "bitmap") material.defines["BMFONT_BITMAP"] = "";
     if (this.font.renderingType === "sdf") material.defines["BMFONT_SDF"] = "";
     if (this.font.renderingType === "msdf") material.defines["BMFONT_MSDF"] = "";
+    if (this.font.renderingType !== "bitmap") material.extensions.derivatives = true;
     material.alphaTest = 0.01;
     material.side = THREE.DoubleSide;
     return material;
