@@ -87,6 +87,7 @@ export default class BMTextRendererUpdater {
 
     setProperty: (path: string, value: any) => {
       switch (path) {
+        case "opacity": if (!this.overrideOpacity) this.textRenderer.setOpacity(value); break;
         default: this.textRenderer.setFont(this.fontAsset.pub);
       }
     }

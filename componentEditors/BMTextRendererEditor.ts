@@ -15,6 +15,8 @@ export default class BMTextRendererEditor {
   shaderAssetId: string;
   fontAsset: BMFontAsset;
   color: string;
+  overrideOpacity: boolean;
+  opacity: number;
   cSpacing: number;
   lSpacing: number;
 
@@ -78,6 +80,34 @@ export default class BMTextRendererEditor {
     this.fields["color"].addListener("change", (color: string) => {
       this.editConfig("setProperty", "color", color);
     });
+
+    const opacityRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("componentEditors:TextRenderer.opacity"), { checkbox: true });
+    this.fields["overrideOpacity"] = opacityRow.checkbox;
+    this.fields["overrideOpacity"].addEventListener("change", (event: any) => {
+      this.editConfig("setProperty", "opacity", this.fontAsset != null ? this.fontAsset.pub.opacity : null);
+      this.editConfig("setProperty", "overrideOpacity", event.target.checked);
+    });
+
+    const opacityParent = document.createElement("div");
+    opacityRow.valueCell.appendChild(opacityParent);
+
+    const transparentOptions: { [key: string]: string } = {
+      empty: "",
+      opaque: SupClient.i18n.t("componentEditors:TextRenderer.opaque"),
+      transparent: SupClient.i18n.t("componentEditors:TextRenderer.transparent"),
+    };
+    this.fields["transparent"] = SupClient.table.appendSelectBox(opacityParent, transparentOptions);
+    (this.fields["transparent"].children[0] as HTMLOptionElement).hidden = true;
+    this.fields["transparent"].addEventListener("change", (event: any) => {
+      const opacity = this.fields["transparent"].value === "transparent" ? 1 : null;
+      this.editConfig("setProperty", "opacity", opacity);
+    });
+
+    this.fields["opacity"] = SupClient.table.appendSliderField(opacityParent, "", { min: 0, max: 1, step: 0.1, sliderStep: 0.01 });
+    this.fields["opacity"].numberField.parentElement.addEventListener("input", (event: any) => {
+      this.editConfig("setProperty", "opacity", parseFloat(event.target.value));
+    });
+    this.updateOpacityField();
 
     const cSpacingRow = SupClient.table.appendRow(tbody, SupClient.i18n.t("componentEditors:BMTextRenderer.characterSpacing"), { checkbox: true });
     this.cSpaceCheckbox = cSpacingRow.checkbox;
@@ -146,6 +176,14 @@ export default class BMTextRendererEditor {
         this.color = value;
         this.updateColorField();
         break;
+      case "overrideOpacity":
+        this.overrideOpacity = value;
+        this.updateOpacityField();
+        break;
+      case "opacity":
+        this.opacity = value;
+        this.updateOpacityField();
+        break;
       case "characterSpacing":
         this.cSpacing = value;
         this.updateSpacingField();
@@ -179,6 +217,29 @@ export default class BMTextRendererEditor {
     this.fields["color"].setDisabled(this.color == null);
   }
 
+  private updateOpacityField() {
+    this.fields["overrideOpacity"].checked = this.overrideOpacity;
+    this.fields["transparent"].disabled = !this.overrideOpacity;
+    this.fields["opacity"].sliderField.disabled = !this.overrideOpacity;
+    this.fields["opacity"].numberField.disabled = !this.overrideOpacity;
+
+    if (!this.overrideOpacity && this.fontAsset == null) {
+      this.fields["transparent"].value = "empty";
+      this.fields["opacity"].numberField.parentElement.hidden = true;
+    } else {
+      const opacity = this.overrideOpacity ? this.opacity : this.fontAsset.pub.opacity;
+      if (opacity != null) {
+        this.fields["transparent"].value = "transparent";
+        this.fields["opacity"].numberField.parentElement.hidden = false;
+        this.fields["opacity"].sliderField.value = opacity.toString();
+        this.fields["opacity"].numberField.value = opacity.toString();
+      } else {
+        this.fields["transparent"].value = "opaque";
+        this.fields["opacity"].numberField.parentElement.hidden = true;
+      }
+    }
+  }
+
   private updateSpacingField() {
     const cSpace = this.cSpacing != null ? this.cSpacing : (this.fontAsset != null ? this.fontAsset.pub.characterSpacing : 0);
     this.fields["characterSpacing"].value = cSpace;
@@ -199,6 +260,7 @@ export default class BMTextRendererEditor {
 
     this.updateColorField();
     this.updateSpacingField();
+    this.updateOpacityField();
   }
   onAssetEdited(assetId: string, command: string, ...args: any[]) {
     if (command !== "setProperty") return;
@@ -206,6 +268,7 @@ export default class BMTextRendererEditor {
     if (command === "setProperty" && args[0] === "color") this.updateColorField();
     if (command === "setProperty" && args[0] === "characterSpacing") this.updateSpacingField();
     if (command === "setProperty" && args[0] === "lineSpacing") this.updateSpacingField();
+    if (command === "setProperty" && args[0] === "opacity") this.updateOpacityField();
 
   }
   onAssetTrashed(assetId: string) {
@@ -213,5 +276,6 @@ export default class BMTextRendererEditor {
 
     this.updateColorField();
     this.updateSpacingField();
+    this.updateOpacityField();
   }
 }
