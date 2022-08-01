@@ -33,6 +33,8 @@ export default class BMTextRendererEditor {
     this.fontAssetId = config.fontAssetId;
     this.shaderAssetId = config.shaderAssetId;
     this.color = config.color;
+    this.overrideOpacity = config.overrideOpacity;
+    this.opacity = config.opacity;
     this.cSpacing = config.characterSpacing;
     this.lSpacing = config.lineSpacing;
 
